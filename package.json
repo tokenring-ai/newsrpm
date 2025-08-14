@@ -1,0 +1,21 @@
+{
+  "name": "@token-ring/newsrpm",
+  "version": "0.1.0",
+  "description": "NewsRPM integration for Token Ring (search, retrieve, upload articles)",
+  "dependencies": {
+    "@token-ring/ai-client": "0.1.0",
+    "@token-ring/chat": "0.1.0",
+    "@token-ring/registry": "0.1.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4",
+    "@vitest/coverage-v8": "^3.2.4"
+  },
+  "exports": {
+    ".": "./index.ts",
+    "./*": "./*.ts"
+  },
+  "types": "./index.ts",
+  "license": "MIT",
+  "type": "module"
+}

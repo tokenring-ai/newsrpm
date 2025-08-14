@@ -1,0 +1,778 @@
+NewsRPM Platform (2.0.0)
+Download OpenAPI specification:Download
+
+E-mail: sales@financialcontent.com
+Terms of Service
+NewsRPM is a Cloud News Platform for the ingestion processing, storing, indexing, and distribution of news articles & other textual content.
+
+Please see the taxonomy reference for all of the metadata which articles can be queried by
+Latest Taxonomy
+
+Authentication
+PrivateKeyInAuthHeader
+A private key is a secret key which can be used to authorize access, and which is passed to the API using the Authorization: privateKey XXXXXX header. A private key is used when retrieving news within an application on a server - for retrieval within a web browser, or from a public client, please use one of the Public Key authorization schemes below
+
+Security Scheme Type: HTTP
+HTTP Authorization Scheme: privateKey
+PublicKeyInAuthHeader
+A public key is a non-secret key which can may be passed using the Authorization: publicKey XXXXXX header. A public key is used within a web browser, to authorize your users to directly connect to the API via CORS. Your users browser is expected to also pass in a valid Origin: header, with a domain name which is authorized for your account.
+
+Security Scheme Type: HTTP
+HTTP Authorization Scheme: publicKey
+PublicKeyInQuery
+As an alternative to passing a public key using the Authorization: header, a public key can also be passed to the API using the query parameter P=XXXXXX.
+
+Security Scheme Type: API Key
+Query parameter name: P
+PrivateKeyInQuery
+As an alternative to passing a private key using the Authorization: header, a private key can also be passed to the API using the query parameter T=XXXXXX. It is not recommended to use this method except for in special circumstances, as your API key may be logged by web caches & proxies
+
+Security Scheme Type: API Key
+Query parameter name: T
+Search for Articles
+Searches the article index for articles tagged with certain keywords/topics/ticker symbols/etc.
+Authorizations:
+PrivateKeyInQueryPublicKeyInQueryPrivateKeyInAuthHeaderPublicKeyInAuthHeader
+Request Body schema: application/json
+required
+Search Query
+
+key
+required
+string
+An Index Key is a specifier used to identify which index you would like to query from
+
+value
+string or Array of strings
+The value to look up in the Index
+
+count
+integer <int32>
+Default: 0
+The number of articles to return
+
+offset
+integer <int32>
+Default: 25
+How many articles to skip before returning results
+
+minDate
+string <date-time>
+The earliest date to return articles for, inclusive
+
+maxDate
+string <date-time>
+The latest date to return articles for, inclusive
+
+order
+string
+Default: "date"
+Enum: "date" "dateWithQuality"
+Field to sort the results by.
+
+For Example:
+- date: Sorts the results by date, newest to oldest
+- dateWithQuality: Sorts the results by date, re-ordering the results based upon the quality of an article. For each 1.0 point of quality, the article is moved up 1 hour in the index, moving it above newer articles by an hour.
+
+Responses
+200 Successful Operation
+400 Bad Request
+401 Invalid Authorization
+
+post
+/search/indexedData
+Request samples
+Payload
+Content type
+application/json
+Example
+
+Full Example Using All Parameter
+Full Example Using All Parameter
+Retrieves all articles for GOOG between two dates
+
+
+Copy
+{
+"key": "NormalizedTicker",
+"value": "GOOG",
+"offset": 0,
+"count": 25,
+"minDate": "2020-07-10T12:27:28.000Z",
+"maxDate": "2020-07-09T12:27:28.000Z",
+"order": "date"
+}
+Response samples
+200
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"success": true,
+"rows": [
+{
+"provider": "string",
+"publisher": "string",
+"headline": "string",
+"link": "string",
+"date": "2019-08-24T14:15:22Z",
+"expires": "2019-08-24T14:15:22Z",
+"slug": "string",
+"summary": "string",
+"firstParagraph": "string",
+"bodyId": "string",
+"language": "string",
+"visiblity": "draft",
+"quality": 0,
+"metaData": { },
+"normalizedData": { }
+}
+]
+}
+Searches for articles by publisher, type, etc.
+Authorizations:
+PrivateKeyInQueryPublicKeyInQueryPrivateKeyInAuthHeaderPublicKeyInAuthHeader
+Request Body schema: application/json
+required
+Search Query
+
+publisher
+string or Array of strings
+The name of the publisher to search for
+
+provider
+string or Array of strings
+The name of the provider to search for
+
+fullText
+string
+A full text query to execute against the article headline
+
+type
+string or Array of strings
+The type of article to search for
+
+sponsored
+boolean
+Whether to restrict content to either sponsored or non-sponsored content
+
+count
+integer <int32>
+The number of articles to return
+
+offset
+integer <int32>
+How many articles to skip before returning results
+
+minDate
+string <date-time>
+The earliest date to return articles for, inclusive
+
+maxDate
+string <date-time>
+The latest date to return articles for, inclusive
+
+language
+string
+Filter results based upon the language the article is in
+
+Responses
+200 Successful Operation
+400 Bad Request
+401 Invalid Authorization
+
+post
+/search/article
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+{
+"type": "Press Release",
+"count": 25,
+"offset": 0
+}
+Response samples
+200
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"success": true,
+"rows": [
+{
+"provider": "string",
+"publisher": "string",
+"headline": "string",
+"link": "string",
+"date": "2019-08-24T14:15:22Z",
+"expires": "2019-08-24T14:15:22Z",
+"slug": "string",
+"summary": "string",
+"firstParagraph": "string",
+"bodyId": "string",
+"language": "string",
+"visiblity": "draft",
+"quality": 0,
+"metaData": { },
+"normalizedData": { }
+}
+]
+}
+Retrieve Articles
+Retrieves article by the unique slug identifier
+Authorizations:
+PrivateKeyInQueryPublicKeyInQueryPrivateKeyInAuthHeaderPublicKeyInAuthHeader
+path Parameters
+slug
+required
+string
+The unique slug identifier of the article to retrieve
+
+Responses
+200 Successful Operation
+400 Bad Request
+401 Invalid Authorization
+
+get
+/article/{slug}
+Response samples
+200
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"success": true,
+"doc": {
+"provider": "string",
+"publisher": "string",
+"headline": "string",
+"link": "string",
+"date": "2019-08-24T14:15:22Z",
+"expires": "2019-08-24T14:15:22Z",
+"slug": "string",
+"summary": "string",
+"firstParagraph": "string",
+"bodyId": "string",
+"language": "string",
+"visiblity": "draft",
+"quality": 0,
+"metaData": { },
+"normalizedData": { }
+}
+}
+Retrieves article by the local article id number
+Authorizations:
+PrivateKeyInQueryPublicKeyInQueryPrivateKeyInAuthHeaderPublicKeyInAuthHeader
+path Parameters
+id
+required
+integer
+The unique local identifier of the article to retrieve. This id is not unique, and does not correlate across news engine instances
+
+Responses
+200 Successful Operation
+400 Bad Request
+401 Invalid Authorization
+
+get
+/article/{id}
+Response samples
+200
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"success": true,
+"doc": {
+"provider": "string",
+"publisher": "string",
+"headline": "string",
+"link": "string",
+"date": "2019-08-24T14:15:22Z",
+"expires": "2019-08-24T14:15:22Z",
+"slug": "string",
+"summary": "string",
+"firstParagraph": "string",
+"bodyId": "string",
+"language": "string",
+"visiblity": "draft",
+"quality": 0,
+"metaData": { },
+"normalizedData": { }
+}
+}
+Retrieve Feed of Articles
+Retrieves a feed of Articles
+Authorizations:
+PrivateKeyInQueryPublicKeyInQueryPrivateKeyInAuthHeaderPublicKeyInAuthHeader
+path Parameters
+feedName
+required
+string
+The name of the feed to retrieve
+
+Responses
+200 Successful Operation
+400 Bad Request
+401 Invalid Authorization
+404 Feed Not Found
+
+get
+/feed/{feedName}/rss
+Response samples
+200
+Content type
+application/rss+xml
+
+Copy
+<rss version="2.0"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:media="http://search.yahoo.com/mrss/">
+ <channel>...</channel>
+</rss>
+Retrieves the list of providers
+Retrieves the list of providers who currently have articles present in this NewsRPM instance
+Authorizations:
+PrivateKeyInQueryPublicKeyInQueryPrivateKeyInAuthHeaderPublicKeyInAuthHeader
+Responses
+200 Successful Operation
+401 Invalid Authorization
+
+get
+/provider
+Response samples
+200
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"success": true,
+"rows": [
+{
+"provider": "string"
+}
+]
+}
+Retrieve Article Body
+Retrieves an Article Body, in the providers native format. The article body may be in an arbitrary format such as HTML, NITF, PDF, etc.
+Authorizations:
+PrivateKeyInQueryPublicKeyInQueryPrivateKeyInAuthHeaderPublicKeyInAuthHeader
+path Parameters
+bodyId
+required
+string
+Body ID of the article body to retrieve
+
+Responses
+200 Successful Operation
+400 Bad Request
+401 Invalid Authorization
+
+get
+/body/{bodyId}
+Response samples
+200
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"success": true,
+"body": {
+"v": 0,
+"chunks": [
+{
+"name": "string",
+"format": "string",
+"content": "string"
+}
+]
+}
+}
+Retrieves an Article Body, and renders it into HTML if it is in another format such as NITF, PDF, etc.
+Authorizations:
+PrivateKeyInQueryPublicKeyInQueryPrivateKeyInAuthHeaderPublicKeyInAuthHeader
+path Parameters
+bodyId
+required
+string
+Body ID of the article body to retrieve
+
+Responses
+200 Successful Operation
+400 Bad Request
+401 Invalid Authorization
+
+get
+/body/{bodyId}/render
+Response samples
+200
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"success": true,
+"body": {
+"v": 0,
+"chunks": [
+{
+"name": "string",
+"format": "string",
+"content": "string"
+}
+]
+}
+}
+Administrative Interfaces
+Uploads and article into your news instance
+Authorizations:
+PrivateKeyInQueryPublicKeyInQueryPrivateKeyInAuthHeaderPublicKeyInAuthHeader
+Request Body schema: application/json
+required
+Article to Upload
+
+provider
+required
+string
+The syndication partner that provided the article
+
+publisher
+string
+The actual publisher of the article if it can be determined
+
+headline
+required
+string
+The headline of the article
+
+link
+string <url>
+The URL of the article
+
+date
+required
+string <date-time>
+The timestamp of the article
+
+expires
+string <date-time>
+The expiration date for the article
+
+slug
+required
+string
+The unique identifier for the article
+
+summary
+string <html>
+The summary of the article
+
+firstParagraph
+string <html>
+The first paragraph of the article
+
+bodyId
+string
+A unique identifier used to retrieve the article body To retrieve the body of the article, pass this ID to the /body/{bodyId} Endpoint
+
+language
+string
+The language that the article is written in
+
+visiblity
+string
+Default: "published"
+Enum: "draft" "embargo" "published" "retracted"
+The visiblity of the article Most clients are subscribed only to “published” articles, so this can typically be ignored unless you are specifically looking for hidden articles
+
+quality
+required
+integer
+Default: 0
+A quality score for the article. Quality scores can be used to rank articles against each other, and the algorithm for scoring is customized for each customers use case. The default score is zero, and may be above or below zero depending on the quality algorithm selected, or always zero if no quality score is selected.
+
+metaData
+object
+A collection of metadata about the article, such as categories, tickers, etc. in a provider specific format
+
+normalizedData
+object
+A collection of metadata about the article, such as categories, tickers, etc.
+
+Responses
+200 Successful Operation
+400 Bad Request
+401 Invalid Authorization
+
+post
+/article
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"provider": "string",
+"publisher": "string",
+"headline": "string",
+"link": "string",
+"date": "2019-08-24T14:15:22Z",
+"expires": "2019-08-24T14:15:22Z",
+"slug": "string",
+"summary": "string",
+"firstParagraph": "string",
+"bodyId": "string",
+"language": "string",
+"visiblity": "draft",
+"quality": 0,
+"metaData": { },
+"normalizedData": { }
+}
+Response samples
+200
+Content type
+application/json
+
+Copy
+{
+"success": true,
+"id": 0
+}
+Subscription Management [Admin]
+Retrieves a list of all subscriptions
+Authorizations:
+PrivateKeyInQueryPublicKeyInQueryPrivateKeyInAuthHeaderPublicKeyInAuthHeader
+Responses
+200 Successful Operation
+401 Invalid Authorization
+
+get
+/subscriptions
+Response samples
+200
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"success": true,
+"rows": [
+{
+"id": 0,
+"name": "string",
+"callbackURI": "http://example.com"
+}
+]
+}
+Creates a subscription with an HTTP callback (Webhook) which is triggered every time an article is created, or updated
+Authorizations:
+PrivateKeyInQueryPublicKeyInQueryPrivateKeyInAuthHeaderPublicKeyInAuthHeader
+Request Body schema: application/json
+required
+Subscription Definition
+
+id
+integer
+The unique identifier for the subscription
+
+name
+string
+The human readable name of the subscription
+
+callbackURI
+string <uri>
+The callback URI for the webhook, which will be sent an HTTP Post when an article is created/updated/deleted
+
+Responses
+200 Successful Operation
+400 Bad Request
+401 Invalid Authorization
+409 Subscription Already Exists
+
+post
+/subscriptions
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+{
+"id": 0,
+"name": "string",
+"callbackURI": "http://example.com"
+}
+Response samples
+200
+Content type
+application/json
+
+Copy
+{
+"success": true,
+"id": 0
+}
+Retrieves a subscription by Id
+Authorizations:
+PrivateKeyInQueryPublicKeyInQueryPrivateKeyInAuthHeaderPublicKeyInAuthHeader
+path Parameters
+subscriptionId
+required
+string
+Subscription ID of the subscription to retrieve
+
+Responses
+200 Successful Operation
+400 Bad Request
+401 Invalid Authorization
+404 Subscription Not Found
+
+get
+/subscription/{subscriptionId}
+Response samples
+200
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"success": true,
+"row": {
+"id": 0,
+"name": "string",
+"callbackURI": "http://example.com"
+}
+}
+Updates a subsciption
+Authorizations:
+PrivateKeyInQueryPublicKeyInQueryPrivateKeyInAuthHeaderPublicKeyInAuthHeader
+path Parameters
+subscriptionId
+required
+string
+Subscription ID of the subscription to update
+
+Request Body schema: application/json
+required
+Subscription Definition
+
+id
+integer
+The unique identifier for the subscription
+
+name
+string
+The human readable name of the subscription
+
+callbackURI
+string <uri>
+The callback URI for the webhook, which will be sent an HTTP Post when an article is created/updated/deleted
+
+Responses
+200 Successful Operation
+400 Bad Request
+401 Invalid Authorization
+404 Not Found
+
+patch
+/subscription/{subscriptionId}
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+{
+"id": 0,
+"name": "string",
+"callbackURI": "http://example.com"
+}
+Response samples
+200
+Content type
+application/json
+
+Copy
+{
+"success": true
+}
+Deletes a subsciption
+Authorizations:
+PrivateKeyInQueryPublicKeyInQueryPrivateKeyInAuthHeaderPublicKeyInAuthHeader
+path Parameters
+subscriptionId
+required
+string
+Subscription ID of the subscription to delete
+
+Responses
+200 Successful Operation
+401 Invalid Authorization
+404 Not Found
+
+delete
+/subscription/{subscriptionId}
+Response samples
+200
+Content type
+application/json
+
+Copy
+{
+"success": true
+}
+Retrieves a list of queued articles which are either in the process of being sent, or have been sent recently
+Authorizations:
+PrivateKeyInQueryPublicKeyInQueryPrivateKeyInAuthHeaderPublicKeyInAuthHeader
+path Parameters
+subscriptionId
+required
+string
+Subscription ID of the subscription to delete
+
+Responses
+200 Successful Operation
+400 Bad Request
+401 Invalid Authorization
+404 Subscription Not Found
+
+get
+/subscription/{subscriptionId}/queue
+Response samples
+200
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"success": true,
+"row": {
+"id": 0,
+"articleId": 0,
+"subscriptionId": 0,
+"status": "queued",
+"createdAt": "2019-08-24T14:15:22Z",
+"updatedAt": "2019-08-24T14:15:22Z"
+}
+}
