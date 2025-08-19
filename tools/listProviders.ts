@@ -1,12 +1,13 @@
-import type { Registry } from "@token-ring/registry";
+import type {Registry} from "@token-ring/registry";
+import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
-import { z } from "zod";
 
 export const description = "List providers present in this NewsRPM instance";
+export const name = "newsrpm/listProviders";
 
 export async function execute(_args: {}, registry: Registry) {
   const service = registry.requireFirstServiceByType(NewsRPMService);
   return await service.listProviders();
 }
 
-export const parameters = z.object({});
+export const inputSchema = z.object({});

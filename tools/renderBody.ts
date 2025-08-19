@@ -1,19 +1,18 @@
-import type { Registry } from "@token-ring/registry";
+import type {Registry} from "@token-ring/registry";
+import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
-import { z } from "zod";
 
 export const description = "Retrieve a rendered (HTML) article body by bodyId";
+export const name = "newsrpm/renderBody";
 
 export async function execute(args: { bodyId?: string }, registry: Registry) {
   const service = registry.requireFirstServiceByType(NewsRPMService);
   if (!args.bodyId) {
-      return {
-          "error": "Body ID is required"
-      }
+    throw new Error(`[${name}] Body ID is required`);
   }
   return await service.renderBody(args.bodyId);
 }
 
-export const parameters = z.object({
+export const inputSchema = z.object({
   bodyId: z.string().min(1).describe("Body ID of the article body to retrieve (rendered)")
 });

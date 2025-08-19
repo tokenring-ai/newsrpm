@@ -1,15 +1,27 @@
-import type { Registry } from "@token-ring/registry";
+import type {Registry} from "@token-ring/registry";
+import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
-import { z } from "zod";
 
 export const description = "Search NewsRPM articles by publisher/provider/type/fullText";
+export const name = "newsrpm/searchArticles";
 
-export async function execute(args: { publisher?: string|string[]; provider?: string|string[]; fullText?: string; type?: string|string[]; sponsored?: boolean; count?: number; offset?: number; minDate?: string; maxDate?: string; language?: string }, registry: Registry) {
+export async function execute(args: {
+  publisher?: string | string[];
+  provider?: string | string[];
+  fullText?: string;
+  type?: string | string[];
+  sponsored?: boolean;
+  count?: number;
+  offset?: number;
+  minDate?: string;
+  maxDate?: string;
+  language?: string
+}, registry: Registry) {
   const service = registry.requireFirstServiceByType(NewsRPMService);
   return await service.searchArticles(args);
 }
 
-export const parameters = z.object({
+export const inputSchema = z.object({
   publisher: z.union([z.string(), z.array(z.string())]).optional().describe("Name(s) of the publisher to search for"),
   provider: z.union([z.string(), z.array(z.string())]).optional().describe("Name(s) of the provider to search for"),
   fullText: z.string().optional().describe("Full text query to execute against the article headline"),

@@ -1,19 +1,18 @@
-import type { Registry } from "@token-ring/registry";
+import type {Registry} from "@token-ring/registry";
+import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
-import { z } from "zod";
 
 export const description = "Upload (create/update) an article to NewsRPM";
+export const name = "newsrpm/uploadArticle";
 
 export async function execute(args: { article?: any }, registry: Registry) {
   const service = registry.requireFirstServiceByType(NewsRPMService);
   if (!args.article) {
-      return {
-          "error": "Article is required"
-      }
+    throw new Error(`[${name}] Article is required`);
   }
   return await service.uploadArticle(args.article);
 }
 
-export const parameters = z.object({
+export const inputSchema = z.object({
   article: z.any().describe("Article object to upload. See pkg/newsrpm/design/newsrpm.openapi.json#/components/schemas/article for the detailed schema")
 });
