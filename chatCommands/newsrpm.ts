@@ -98,9 +98,9 @@ export async function execute(remainder: string, registry: Registry): Promise<vo
         value,
         count: flags.count ? Number(flags.count) : undefined,
         offset: flags.offset ? Number(flags.offset) : undefined,
-        minDate: flags.min as string | undefined,
-        maxDate: flags.max as string | undefined,
-        order: (flags.order as any) || undefined,
+        minDate: flags.min,
+        maxDate: flags.max,
+        order: flags.order || undefined,
       });
       const top = Array.isArray(res?.rows) ? res.rows.slice(0, 5) : [];
       if (top.length) {
