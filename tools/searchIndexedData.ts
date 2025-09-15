@@ -1,4 +1,5 @@
-import type {Registry} from "@token-ring/registry";
+import {Agent} from "@tokenring-ai/agent";
+
 import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
@@ -13,8 +14,8 @@ export async function execute(args: {
   minDate?: string;
   maxDate?: string;
   order?: 'date' | 'dateWithQuality'
-}, registry: Registry) {
-  const service = registry.requireFirstServiceByType(NewsRPMService);
+}, agent: Agent) {
+  const service = agent.requireFirstServiceByType(NewsRPMService);
   if (!args.key) {
     throw new Error(`[${name}] Key is required`);
   }

@@ -1,12 +1,12 @@
-import type {Registry} from "@token-ring/registry";
+import {Agent} from "@tokenring-ai/agent";
 import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
 export const description = "Retrieve a rendered (HTML) article body by bodyId";
 export const name = "newsrpm/renderBody";
 
-export async function execute(args: { bodyId?: string }, registry: Registry) {
-  const service = registry.requireFirstServiceByType(NewsRPMService);
+export async function execute(args: { bodyId?: string }, agent: Agent) {
+  const service = agent.requireFirstServiceByType(NewsRPMService);
   if (!args.bodyId) {
     throw new Error(`[${name}] Body ID is required`);
   }

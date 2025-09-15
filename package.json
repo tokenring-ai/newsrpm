@@ -1,11 +1,11 @@
 {
- "name": "@token-ring/newsrpm",
+ "name": "@tokenring-ai/newsrpm",
  "version": "0.1.0",
  "description": "NewsRPM integration for Token Ring (search, retrieve, upload articles)",
  "dependencies": {
-  "@token-ring/ai-client": "0.1.0",
-  "@token-ring/chat": "0.1.0",
-  "@token-ring/registry": "0.1.0"
+  "@tokenring-ai/ai-client": "0.1.0",
+  "@tokenring-ai/agent": "0.1.0",
+  "@tokenring-ai/registry": "0.1.0"
  },
  "devDependencies": {
   "vitest": "^3.2.4",

@@ -1,12 +1,12 @@
-import type {Registry} from "@token-ring/registry";
+import {Agent} from "@tokenring-ai/agent";
 import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
 export const description = "Upload (create/update) an article to NewsRPM";
 export const name = "newsrpm/uploadArticle";
 
-export async function execute(args: { article?: any }, registry: Registry) {
-  const service = registry.requireFirstServiceByType(NewsRPMService);
+export async function execute(args: { article?: any }, agent: Agent) {
+  const service = agent.requireFirstServiceByType(NewsRPMService);
   if (!args.article) {
     throw new Error(`[${name}] Article is required`);
   }

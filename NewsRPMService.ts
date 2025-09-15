@@ -1,4 +1,5 @@
-import {type Registry, Service} from "@token-ring/registry";
+import Agent from "@tokenring-ai/agent/Agent";
+import {TokenRingService} from "@tokenring-ai/agent/types";
 
 export type NewsRPMAuthMode = 'privateHeader' | 'publicHeader' | 'privateQuery' | 'publicQuery';
 
@@ -26,26 +27,21 @@ export type ArticleBodyResponse = {
   body: { v: number; chunks: Array<{ name: string; format: string; content: string }> }
 };
 
-export default class NewsRPMService extends Service {
+export default class NewsRPMService implements TokenRingService {
   name = "NewsRPM";
   description = "Service for interacting with a NewsRPM instance";
 
-  private registry!: Registry;
   private readonly config: NewsRPMConfig;
   private readonly fetchImpl: typeof fetch;
 
   constructor(config: NewsRPMConfig) {
-    super();
     if (!config?.apiKey) throw new Error("NewsRPMService requires apiKey");
     this.config = config;
     this.fetchImpl = config.fetchImpl ?? fetch;
   }
 
-  async start(registry: Registry): Promise<void> {
-    this.registry = registry;
-  }
-
-  async stop(_registry: Registry): Promise<void> {
+  async attach(agent: Agent): Promise<void> {
+    // No state initialization needed
   }
 
   async searchIndexedData(body: any): Promise<MultipleArticleResponse> {

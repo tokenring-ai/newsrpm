@@ -1,7 +1,5 @@
-import {HumanInterfaceService} from "@token-ring/chat";
-import ChatService from "@token-ring/chat/ChatService";
-import {FileSystemService} from "@token-ring/filesystem";
-import type {Registry} from "@token-ring/registry";
+import Agent from "@tokenring-ai/agent/Agent";
+import {FileSystemService} from "@tokenring-ai/filesystem";
 import NewsRPMService from "../NewsRPMService.ts";
 
 export const description = "/newsrpm [index|search|article|providers|body|upload] - Interact with NewsRPM";
@@ -62,24 +60,22 @@ function parseFlags(args: string[]): { flags: Record<string, string | number | b
   return {flags, rest};
 }
 
-export async function execute(remainder: string, registry: Registry): Promise<void> {
-  const chat = registry.requireFirstServiceByType(ChatService);
-  registry.requireFirstServiceByType(HumanInterfaceService);
-  const nrpm = registry.requireFirstServiceByType(NewsRPMService);
+export async function execute(remainder: string, agent: Agent): Promise<void> {
+  const nrpm = agent.requireFirstServiceByType(NewsRPMService);
 
   const [sub, ...rest] = remainder.trim().split(/\s+/);
   if (!sub) {
-    help().forEach((l) => chat.systemLine(l));
+    help().forEach((l) => agent.infoLine(l));
     return;
   }
   const {flags, rest: r} = parseFlags(rest);
 
   const saveIfRequested = async (data: any) => {
     if (flags.save) {
-      const fsService = registry.requireFirstServiceByType(FileSystemService);
+      const fsService = agent.requireFirstServiceByType(FileSystemService);
       const path = String(flags.save);
       await fsService.writeFile(path, JSON.stringify(data, null, 2));
-      chat.systemLine(`Saved raw JSON to ${path}`);
+      agent.infoLine(`Saved raw JSON to ${path}`);
     }
   };
 
@@ -88,7 +84,7 @@ export async function execute(remainder: string, registry: Registry): Promise<vo
       const [key, ...restKey] = r;
       const keyArg = key;
       if (!keyArg) {
-        chat.errorLine("Usage: /newsrpm index <key> [flags]");
+        agent.errorLine("Usage: /newsrpm index <key> [flags]");
         return;
       }
       let value: string | string[] | undefined = flags.value as string | undefined;
@@ -104,10 +100,10 @@ export async function execute(remainder: string, registry: Registry): Promise<vo
       });
       const top = Array.isArray(res?.rows) ? res.rows.slice(0, 5) : [];
       if (top.length) {
-        chat.systemLine("Top results:");
-        for (const a of top) chat.systemLine(`- ${a.headline ?? '(no headline)'} [${a.provider ?? ''}] ${a.slug ?? ''}`);
+        agent.infoLine("Top results:");
+        for (const a of top) agent.infoLine(`- ${a.headline ?? '(no headline)'} [${a.provider ?? ''}] ${a.slug ?? ''}`);
       } else {
-        chat.systemLine("No results.");
+        agent.infoLine("No results.");
       }
       await saveIfRequested(res);
     } else if (sub === 'search') {
@@ -125,10 +121,10 @@ export async function execute(remainder: string, registry: Registry): Promise<vo
       });
       const top = Array.isArray(rows?.rows) ? rows.rows.slice(0, 5) : [];
       if (top.length) {
-        chat.systemLine("Top results:");
-        for (const a of top) chat.systemLine(`- ${a.headline ?? '(no headline)'} [${a.provider ?? ''}] ${a.slug ?? ''}`);
+        agent.infoLine("Top results:");
+        for (const a of top) agent.infoLine(`- ${a.headline ?? '(no headline)'} [${a.provider ?? ''}] ${a.slug ?? ''}`);
       } else {
-        chat.systemLine("No results.");
+        agent.infoLine("No results.");
       }
       await saveIfRequested(rows);
     } else if (sub === 'article') {
@@ -136,58 +132,58 @@ export async function execute(remainder: string, registry: Registry): Promise<vo
       if (which === 'slug') {
         const slug = r[1];
         if (!slug) {
-          chat.errorLine("Usage: /newsrpm article slug <slug>");
+          agent.errorLine("Usage: /newsrpm article slug <slug>");
           return;
         }
         const res = await nrpm.getArticleBySlug(slug);
-        chat.systemLine(res?.doc?.headline ?? "(no headline)");
+        agent.infoLine(res?.doc?.headline ?? "(no headline)");
         await saveIfRequested(res);
       } else if (which === 'id') {
         const id = Number(r[1]);
         if (!id) {
-          chat.errorLine("Usage: /newsrpm article id <id>");
+          agent.errorLine("Usage: /newsrpm article id <id>");
           return;
         }
         const res = await nrpm.getArticleById(id);
-        chat.systemLine(res?.doc?.headline ?? "(no headline)");
+        agent.infoLine(res?.doc?.headline ?? "(no headline)");
         await saveIfRequested(res);
       } else {
-        chat.errorLine("Usage: /newsrpm article slug <slug> | id <id>");
+        agent.errorLine("Usage: /newsrpm article slug <slug> | id <id>");
       }
     } else if (sub === 'providers') {
       const res = await nrpm.listProviders();
       const providers = Array.isArray(res?.rows) ? res.rows.map((r: any) => r.provider).filter(Boolean) : [];
       if (providers.length) {
-        chat.systemLine("Providers:");
-        for (const p of providers) chat.systemLine(`- ${p}`);
-      } else chat.systemLine("No providers returned.");
+        agent.infoLine("Providers:");
+        for (const p of providers) agent.infoLine(`- ${p}`);
+      } else agent.infoLine("No providers returned.");
       await saveIfRequested(res);
     } else if (sub === 'body') {
       const bodyId = r[0];
       if (!bodyId) {
-        chat.errorLine("Usage: /newsrpm body <bodyId> [--render]");
+        agent.errorLine("Usage: /newsrpm body <bodyId> [--render]");
         return;
       }
       const res = flags.render ? await nrpm.renderBody(bodyId) : await nrpm.getBody(bodyId);
       const count = res?.body?.chunks?.length ?? 0;
-      chat.systemLine(`Body chunks: ${count}`);
+      agent.infoLine(`Body chunks: ${count}`);
       await saveIfRequested(res);
     } else if (sub === 'upload') {
       const jsonPath = flags.json as string | undefined;
       if (!jsonPath) {
-        chat.errorLine("Usage: /newsrpm upload --json <path>");
+        agent.errorLine("Usage: /newsrpm upload --json <path>");
         return;
       }
-      const fsService = registry.requireFirstServiceByType(FileSystemService);
+      const fsService = agent.requireFirstServiceByType(FileSystemService);
       const raw = await fsService.readFile(jsonPath, 'utf-8');
       const article = JSON.parse(raw);
       const res = await nrpm.uploadArticle(article);
-      chat.systemLine(`Uploaded. id=${res?.id}`);
+      agent.infoLine(`Uploaded. id=${res?.id}`);
     } else {
-      chat.systemLine("Unknown subcommand.");
-      help().forEach((l) => chat.systemLine(l));
+      agent.infoLine("Unknown subcommand.");
+      help().forEach((l) => agent.infoLine(l));
     }
   } catch (e: any) {
-    chat.errorLine(`NewsRPM command error: ${e?.message || String(e)}`);
+    agent.errorLine(`NewsRPM command error: ${e?.message || String(e)}`);
   }
 }

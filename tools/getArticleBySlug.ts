@@ -1,12 +1,13 @@
-import type {Registry} from "@token-ring/registry";
+
+import {Agent} from "@tokenring-ai/agent";
 import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
 export const description = "Get a NewsRPM article by slug";
 export const name = "newsrpm/getArticleBySlug";
 
-export async function execute(args: { slug?: string }, registry: Registry) {
-  const service = registry.requireFirstServiceByType(NewsRPMService);
+export async function execute(args: { slug?: string }, agent: Agent) {
+  const service = agent.requireFirstServiceByType(NewsRPMService);
   if (!args.slug) {
     throw new Error(`[${name}] Slug is required`);
   }
