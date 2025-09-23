@@ -61,7 +61,7 @@ function parseFlags(args: string[]): { flags: Record<string, string | number | b
 }
 
 export async function execute(remainder: string, agent: Agent): Promise<void> {
-  const nrpm = agent.requireFirstServiceByType(NewsRPMService);
+  const nrpm = agent.requireServiceByType(NewsRPMService);
 
   const [sub, ...rest] = remainder.trim().split(/\s+/);
   if (!sub) {
@@ -72,7 +72,7 @@ export async function execute(remainder: string, agent: Agent): Promise<void> {
 
   const saveIfRequested = async (data: any) => {
     if (flags.save) {
-      const fsService = agent.requireFirstServiceByType(FileSystemService);
+      const fsService = agent.requireServiceByType(FileSystemService);
       const path = String(flags.save);
       await fsService.writeFile(path, JSON.stringify(data, null, 2));
       agent.infoLine(`Saved raw JSON to ${path}`);
@@ -174,7 +174,7 @@ export async function execute(remainder: string, agent: Agent): Promise<void> {
         agent.errorLine("Usage: /newsrpm upload --json <path>");
         return;
       }
-      const fsService = agent.requireFirstServiceByType(FileSystemService);
+      const fsService = agent.requireServiceByType(FileSystemService);
       const raw = await fsService.readFile(jsonPath, 'utf-8');
       const article = JSON.parse(raw);
       const res = await nrpm.uploadArticle(article);

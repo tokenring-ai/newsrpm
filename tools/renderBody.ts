@@ -6,7 +6,7 @@ export const description = "Retrieve a rendered (HTML) article body by bodyId";
 export const name = "newsrpm/renderBody";
 
 export async function execute(args: { bodyId?: string }, agent: Agent) {
-  const service = agent.requireFirstServiceByType(NewsRPMService);
+  const service = agent.requireServiceByType(NewsRPMService);
   if (!args.bodyId) {
     throw new Error(`[${name}] Body ID is required`);
   }

@@ -15,7 +15,7 @@ export async function execute(args: {
   maxDate?: string;
   order?: 'date' | 'dateWithQuality'
 }, agent: Agent) {
-  const service = agent.requireFirstServiceByType(NewsRPMService);
+  const service = agent.requireServiceByType(NewsRPMService);
   if (!args.key) {
     throw new Error(`[${name}] Key is required`);
   }

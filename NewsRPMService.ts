@@ -28,7 +28,7 @@ export type ArticleBodyResponse = {
 };
 
 export default class NewsRPMService implements TokenRingService {
-  name = "NewsRPM";
+  name = "NewsRPMService";
   description = "Service for interacting with a NewsRPM instance";
 
   private readonly config: NewsRPMConfig;

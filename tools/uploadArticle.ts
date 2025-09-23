@@ -6,7 +6,7 @@ export const description = "Upload (create/update) an article to NewsRPM";
 export const name = "newsrpm/uploadArticle";
 
 export async function execute(args: { article?: any }, agent: Agent) {
-  const service = agent.requireFirstServiceByType(NewsRPMService);
+  const service = agent.requireServiceByType(NewsRPMService);
   if (!args.article) {
     throw new Error(`[${name}] Article is required`);
   }
