@@ -1,5 +1,6 @@
 import Agent from "@tokenring-ai/agent/Agent";
 import {TokenRingService} from "@tokenring-ai/agent/types";
+import {HttpService} from "@tokenring-ai/utility/HttpService";
 
 export type NewsRPMAuthMode = 'privateHeader' | 'publicHeader' | 'privateQuery' | 'publicQuery';
 
@@ -27,17 +28,22 @@ export type ArticleBodyResponse = {
   body: { v: number; chunks: Array<{ name: string; format: string; content: string }> }
 };
 
-export default class NewsRPMService implements TokenRingService {
+export default class NewsRPMService extends HttpService implements TokenRingService {
   name = "NewsRPMService";
   description = "Service for interacting with a NewsRPM instance";
 
   private readonly config: NewsRPMConfig;
   private readonly fetchImpl: typeof fetch;
+  protected baseUrl: string;
+  protected defaultHeaders: Record<string, string>;
 
   constructor(config: NewsRPMConfig) {
+    super();
     if (!config?.apiKey) throw new Error("NewsRPMService requires apiKey");
     this.config = config;
     this.fetchImpl = config.fetchImpl ?? fetch;
+    this.baseUrl = (config.baseUrl ?? 'https://api.newsrpm.com').replace(/\/$/, '');
+    this.defaultHeaders = this.buildHeaders();
   }
 
   async attach(agent: Agent): Promise<void> {
@@ -46,57 +52,48 @@ export default class NewsRPMService implements TokenRingService {
 
   async searchIndexedData(body: any): Promise<MultipleArticleResponse> {
     if (!body?.key) throw Object.assign(new Error('key is required'), {status: 400});
-    const url = this.buildUrl('/search/indexedData');
-    const res = await this.doFetchWithRetry(url, {
+    const path = this.buildPath('/search/indexedData');
+    return this.fetchJson(path, {
       method: 'POST',
-      headers: this.buildHeaders(),
       body: JSON.stringify(body)
-    });
-    return await this.parseJson(res, 'searchIndexedData');
+    }, 'searchIndexedData');
   }
 
   async searchArticles(body: any): Promise<MultipleArticleResponse> {
-    const url = this.buildUrl('/search/article');
-    const res = await this.doFetchWithRetry(url, {
+    const path = this.buildPath('/search/article');
+    return this.fetchJson(path, {
       method: 'POST',
-      headers: this.buildHeaders(),
       body: JSON.stringify(body || {})
-    });
-    return await this.parseJson(res, 'searchArticles');
+    }, 'searchArticles');
   }
 
   async getArticleBySlug(slug: string): Promise<SingleArticleResponse> {
     if (!slug) throw Object.assign(new Error('slug is required'), {status: 400});
-    const url = this.buildUrl(`/article/${encodeURIComponent(slug)}`);
-    const res = await this.doFetchWithRetry(url, {method: 'GET', headers: this.buildHeaders()});
-    return await this.parseJson(res, 'getArticleBySlug');
+    const path = this.buildPath(`/article/${encodeURIComponent(slug)}`);
+    return this.fetchJson(path, {method: 'GET'}, 'getArticleBySlug');
   }
 
   async getArticleById(id: number): Promise<SingleArticleResponse> {
     if (id === undefined || id === null) throw Object.assign(new Error('id is required'), {status: 400});
-    const url = this.buildUrl(`/article/${encodeURIComponent(String(id))}`);
-    const res = await this.doFetchWithRetry(url, {method: 'GET', headers: this.buildHeaders()});
-    return await this.parseJson(res, 'getArticleById');
+    const path = this.buildPath(`/article/${encodeURIComponent(String(id))}`);
+    return this.fetchJson(path, {method: 'GET'}, 'getArticleById');
   }
 
   async listProviders(): Promise<ProviderListResponse> {
-    const url = this.buildUrl('/provider');
-    const res = await this.doFetchWithRetry(url, {method: 'GET', headers: this.buildHeaders()});
-    return await this.parseJson(res, 'listProviders');
+    const path = this.buildPath('/provider');
+    return this.fetchJson(path, {method: 'GET'}, 'listProviders');
   }
 
   async getBody(bodyId: string): Promise<ArticleBodyResponse> {
     if (!bodyId) throw Object.assign(new Error('bodyId is required'), {status: 400});
-    const url = this.buildUrl(`/body/${encodeURIComponent(bodyId)}`);
-    const res = await this.doFetchWithRetry(url, {method: 'GET', headers: this.buildHeaders()});
-    return await this.parseJson(res, 'getBody');
+    const path = this.buildPath(`/body/${encodeURIComponent(bodyId)}`);
+    return this.fetchJson(path, {method: 'GET'}, 'getBody');
   }
 
   async renderBody(bodyId: string): Promise<ArticleBodyResponse> {
     if (!bodyId) throw Object.assign(new Error('bodyId is required'), {status: 400});
-    const url = this.buildUrl(`/body/${encodeURIComponent(bodyId)}/render`);
-    const res = await this.doFetchWithRetry(url, {method: 'GET', headers: this.buildHeaders()});
-    return await this.parseJson(res, 'renderBody');
+    const path = this.buildPath(`/body/${encodeURIComponent(bodyId)}/render`);
+    return this.fetchJson(path, {method: 'GET'}, 'renderBody');
   }
 
   async uploadArticle(article: any): Promise<{ success: boolean; id: number }> {
@@ -104,18 +101,15 @@ export default class NewsRPMService implements TokenRingService {
       throw Object.assign(new Error('Missing required article fields: provider, headline, slug, date, quality'), {status: 400});
     }
     // Note: API schema uses visiblity (typo) — do not rename when sending.
-    const url = this.buildUrl('/article');
-    const res = await this.doFetchWithRetry(url, {
+    const path = this.buildPath('/article');
+    return this.fetchJson(path, {
       method: 'POST',
-      headers: this.buildHeaders(),
       body: JSON.stringify(article)
-    });
-    return await this.parseJson(res, 'uploadArticle');
+    }, 'uploadArticle');
   }
 
-  private buildUrl(pathname: string, query?: Record<string, string | number | boolean | undefined>): string {
-    const base = (this.config.baseUrl ?? 'https://api.newsrpm.com').replace(/\/$/, '');
-    const url = new URL(base + (pathname.startsWith('/') ? pathname : '/' + pathname));
+  private buildPath(pathname: string, query?: Record<string, string | number | boolean | undefined>): string {
+    const url = new URL(pathname.startsWith('/') ? pathname : '/' + pathname, 'http://dummy.com');
 
     // auth via query
     const mode = this.config.authMode ?? 'privateHeader';
@@ -128,10 +122,10 @@ export default class NewsRPMService implements TokenRingService {
         url.searchParams.set(k, String(v));
       }
     }
-    return url.toString();
+    return url.pathname + url.search;
   }
 
-  private buildHeaders(extra?: Record<string, string>): HeadersInit {
+  private buildHeaders(extra?: Record<string, string>): Record<string, string> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...(this.config.requestDefaults?.headers || {}),
@@ -144,62 +138,7 @@ export default class NewsRPMService implements TokenRingService {
     return headers;
   }
 
-  private async doFetchWithRetry(input: RequestInfo | URL, init: RequestInit & {
-    timeoutMs?: number
-  } = {}): Promise<Response> {
-    const {retry} = this.config;
-    const maxRetries = retry?.maxRetries ?? 3;
-    const baseDelay = retry?.baseDelayMs ?? 500;
-    const maxDelay = retry?.maxDelayMs ?? 4000;
-    const jitter = retry?.jitter ?? true;
 
-    let attempt = 0;
-    let delay = baseDelay;
 
-    while (true) {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), init.timeoutMs ?? this.config.requestDefaults?.timeoutMs ?? 30000);
-      try {
-        const res = await this.fetchImpl(input, {...init, signal: controller.signal});
-        clearTimeout(timeout);
-        if (res.ok) return res;
-        if (res.status === 429 || (res.status >= 500 && res.status < 600)) {
-          if (attempt >= maxRetries) return res;
-          const sleep = jitter ? delay + Math.floor(Math.random() * Math.min(250, delay)) : delay;
-          await new Promise((r) => setTimeout(r, sleep));
-          delay = Math.min(maxDelay, delay * 2);
-          attempt++;
-          continue;
-        }
-        return res;
-      } catch (e: any) {
-        clearTimeout(timeout);
-        if (e?.name === 'AbortError') {
-          if (attempt >= maxRetries) throw Object.assign(new Error('Request timeout'), {status: 408});
-          await new Promise((r) => setTimeout(r, delay));
-          delay = Math.min(maxDelay, delay * 2);
-          attempt++;
-          continue;
-        }
-        throw e;
-      }
-    }
-  }
 
-  private async parseJson(res: Response, context: string): Promise<any> {
-    const text = await res.text().catch(() => "");
-    let json: any = undefined;
-    try {
-      json = text ? JSON.parse(text) : undefined;
-    } catch {
-    }
-    if (!res.ok) {
-      const err: any = new Error(`${context} failed (${res.status})`);
-      err.status = res.status;
-      err.details = json ?? text?.slice(0, 500);
-      err.hint = res.status === 401 ? 'Check NEWSRPM apiKey/authMode' : res.status === 429 ? 'Slow down requests' : undefined;
-      throw err;
-    }
-    return json ?? {};
-  }
 }
