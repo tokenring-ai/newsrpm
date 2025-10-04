@@ -1,6 +1,7 @@
 import Agent from "@tokenring-ai/agent/Agent";
 import {TokenRingService} from "@tokenring-ai/agent/types";
 import {HttpService} from "@tokenring-ai/utility/HttpService";
+import {z} from "zod";
 
 export type NewsRPMAuthMode = 'privateHeader' | 'publicHeader' | 'privateQuery' | 'publicQuery';
 
@@ -10,15 +11,24 @@ export type NewsRPMRequestDefaults = {
   headers?: Record<string, string>;
   timeoutMs?: number;
 };
+export const NewsRPMConfigSchema = z.object({
+  apiKey: z.string(),
+  authMode: z.enum(['privateHeader', 'publicHeader', 'privateQuery', 'publicQuery']).optional(),
+  baseUrl: z.string().optional(),
+  requestDefaults: z.object({
+    headers: z.record(z.string(), z.string()).optional(),
+    timeoutMs: z.number().optional(),
+  }).optional(),
+  retry: z.object({
+    maxRetries: z.number().optional(),
+    baseDelayMs: z.number().optional(),
+    maxDelayMs: z.number().optional(),
+    jitter: z.boolean().optional(),
+  }).optional(),
+  fetchImpl: z.any().optional(),
+});
 
-export type NewsRPMConfig = {
-  apiKey: string;
-  authMode?: NewsRPMAuthMode;
-  baseUrl?: string;
-  requestDefaults?: NewsRPMRequestDefaults;
-  retry?: NewsRPMRetry;
-  fetchImpl?: typeof fetch; // for tests
-};
+export type NewsRPMConfig = z.infer<typeof NewsRPMConfigSchema>;
 
 export type MultipleArticleResponse = { success: boolean; rows: any[] };
 export type SingleArticleResponse = { success: boolean; doc: any };
