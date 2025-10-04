@@ -74,7 +74,7 @@ export async function execute(remainder: string, agent: Agent): Promise<void> {
     if (flags.save) {
       const fsService = agent.requireServiceByType(FileSystemService);
       const path = String(flags.save);
-      await fsService.writeFile(path, JSON.stringify(data, null, 2), agent);
+      await fsService.writeFile(path, JSON.stringify(data, null, 2));
       agent.infoLine(`Saved raw JSON to ${path}`);
     }
   };
