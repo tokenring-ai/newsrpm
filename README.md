@@ -95,6 +95,44 @@ These tools are exported via pkg/newsrpm/tools.ts and can be enabled through the
 - uploadArticle: Create or update an article.
  - Params: article (object, required). See the OpenAPI schema reference below for full shape.
 
+## Global Scripting Functions
+
+When `@tokenring-ai/scripting` is available, the newsrpm package registers native functions:
+
+- **searchArticles(query)**: Searches articles by full-text query and returns JSON results.
+  ```bash
+  /var $articles = searchArticles("artificial intelligence")
+  /call searchArticles("tech news")
+  ```
+
+- **searchIndexedData(key, value)**: Searches indexed data by taxonomy key/value.
+  ```bash
+  /var $results = searchIndexedData("NormalizedTicker", "AAPL")
+  /call searchIndexedData("topic", "Cannabis")
+  ```
+
+- **getArticleBySlug(slug)**: Retrieves an article by its slug.
+  ```bash
+  /var $article = getArticleBySlug("my-article-slug")
+  ```
+
+- **listProviders()**: Lists all available providers.
+  ```bash
+  /var $providers = listProviders()
+  ```
+
+These functions integrate with the scripting system:
+
+```bash
+# Search for articles and analyze
+/var $articles = searchArticles("climate change")
+/var $analysis = llm("Summarize these articles: $articles")
+
+# Get ticker-specific news
+/var $news = searchIndexedData("NormalizedTicker", "TSLA")
+/var $summary = llm("Analyze sentiment: $news")
+```
+
 ## Chat Command
 
 This package provides a /newsrpm command usable in the TokenRing REPL.
