@@ -1,16 +1,18 @@
-import {AgentTeam, TokenRingPackage} from "@tokenring-ai/agent";
+import TokenRingApp, { TokenRingPlugin } from "@tokenring-ai/app";
+import {ChatService} from "@tokenring-ai/chat";
+
 import {ScriptingService} from "@tokenring-ai/scripting";
 import {ScriptingThis} from "@tokenring-ai/scripting/ScriptingService.ts";
 import NewsRPMService, {NewsRPMConfigSchema} from "./NewsRPMService.js";
 import packageJSON from './package.json' with {type: 'json'};
 import * as tools from "./tools.ts";
 
-export const packageInfo: TokenRingPackage = {
+export const packageInfo: TokenRingPlugin = {
   name: packageJSON.name,
   version: packageJSON.version,
   description: packageJSON.description,
-  install(agentTeam: AgentTeam) {
-    agentTeam.services.waitForItemByType(ScriptingService).then((scriptingService: ScriptingService) => {
+  install(app: TokenRingApp) {
+    app.services.waitForItemByType(ScriptingService).then((scriptingService: ScriptingService) => {
       scriptingService.registerFunction("searchArticles", {
           type: 'native',
           params: ['query'],
@@ -51,10 +53,12 @@ export const packageInfo: TokenRingPackage = {
         }
       );
     });
-    agentTeam.addTools(packageInfo, tools);
-    const config = agentTeam.getConfigSlice('newsrpm', NewsRPMConfigSchema);
+    app.waitForService(ChatService, chatService =>
+      chatService.addTools(packageJSON.name, tools)
+    );
+    const config = app.getConfigSlice('newsrpm', NewsRPMConfigSchema);
     if (config) {
-      agentTeam.addServices(new NewsRPMService(config));
+      app.addServices(new NewsRPMService(config));
     }
   },
 };
