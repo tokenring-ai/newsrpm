@@ -1,16 +1,8 @@
 import Agent from "@tokenring-ai/agent/Agent";
-import {TokenRingService} from "@tokenring-ai/agent/types";
-import {HttpService} from "@tokenring-ai/utility/HttpService";
+import {TokenRingService} from "@tokenring-ai/app/types";
+import {HttpService} from "@tokenring-ai/utility/http/HttpService";
 import {z} from "zod";
 
-export type NewsRPMAuthMode = 'privateHeader' | 'publicHeader' | 'privateQuery' | 'publicQuery';
-
-export type NewsRPMRetry = { maxRetries?: number; baseDelayMs?: number; maxDelayMs?: number; jitter?: boolean };
-
-export type NewsRPMRequestDefaults = {
-  headers?: Record<string, string>;
-  timeoutMs?: number;
-};
 export const NewsRPMConfigSchema = z.object({
   apiKey: z.string(),
   authMode: z.enum(['privateHeader', 'publicHeader', 'privateQuery', 'publicQuery']).optional(),
@@ -147,8 +139,4 @@ export default class NewsRPMService extends HttpService implements TokenRingServ
     if (mode === 'publicHeader') headers['Authorization'] = `publicKey ${this.config.apiKey}`;
     return headers;
   }
-
-
-
-
 }

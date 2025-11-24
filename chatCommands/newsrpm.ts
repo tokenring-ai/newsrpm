@@ -1,11 +1,12 @@
 import Agent from "@tokenring-ai/agent/Agent";
+import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {FileSystemService} from "@tokenring-ai/filesystem";
 import NewsRPMService from "../NewsRPMService.ts";
 
-export const description = "/newsrpm [index|search|article|providers|body|upload] - Interact with NewsRPM";
+const description = "/newsrpm [index|search|article|providers|body|upload] - Interact with NewsRPM";
 
 
-export function help(): Array<string> {
+function help(): Array<string> {
   return [
     "/newsrpm [action] - Interact with NewsRPM service for news articles and data",
     "  Actions:",
@@ -60,7 +61,7 @@ function parseFlags(args: string[]): { flags: Record<string, string | number | b
   return {flags, rest};
 }
 
-export async function execute(remainder: string, agent: Agent): Promise<void> {
+async function execute(remainder: string, agent: Agent): Promise<void> {
   const nrpm = agent.requireServiceByType(NewsRPMService);
 
   const [sub, ...rest] = remainder.trim().split(/\s+/);
@@ -187,3 +188,10 @@ export async function execute(remainder: string, agent: Agent): Promise<void> {
     agent.errorLine(`NewsRPM command error: ${e?.message || String(e)}`);
   }
 }
+
+
+export default {
+  description,
+  execute,
+  help,
+} as TokenRingAgentCommand

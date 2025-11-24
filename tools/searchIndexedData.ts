@@ -1,20 +1,13 @@
 import {Agent} from "@tokenring-ai/agent";
+import {TokenRingToolDefinition} from "@tokenring-ai/chat/types";
 
 import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
-export const description = "Search NewsRPM indexedData by taxonomy key/value";
-export const name = "newsrpm/searchIndexedData";
+const description = "Search NewsRPM indexedData by taxonomy key/value";
+const name = "newsrpm/searchIndexedData";
 
-export async function execute(args: {
-  key?: string;
-  value?: string | string[];
-  count?: number;
-  offset?: number;
-  minDate?: string;
-  maxDate?: string;
-  order?: 'date' | 'dateWithQuality'
-}, agent: Agent) {
+async function execute(args: z.infer<typeof inputSchema>, agent: Agent) {
   const service = agent.requireServiceByType(NewsRPMService);
   if (!args.key) {
     throw new Error(`[${name}] Key is required`);
@@ -22,7 +15,7 @@ export async function execute(args: {
   return await service.searchIndexedData(args);
 }
 
-export const inputSchema = z.object({
+const inputSchema = z.object({
   key: z.string().min(1).describe("Index key specifier (e.g., NormalizedTicker, topic, region)"),
   value: z.union([z.string(), z.array(z.string())]).optional().describe("Value to look up in the index (string or array of strings)"),
   count: z.number().int().optional().describe("Number of articles to return"),
@@ -31,3 +24,7 @@ export const inputSchema = z.object({
   maxDate: z.string().optional().describe("Latest date to return (inclusive, ISO 8601)"),
   order: z.enum(["date", "dateWithQuality"]).optional().describe("Sort order: date or dateWithQuality")
 });
+
+export default {
+  name, description, inputSchema, execute,
+} as TokenRingToolDefinition<typeof inputSchema>;

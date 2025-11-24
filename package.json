@@ -4,7 +4,8 @@
  "description": "NewsRPM integration for Token Ring (search, retrieve, upload articles)",
  "dependencies": {
   "@tokenring-ai/ai-client": "0.1.0",
-  "@tokenring-ai/agent": "0.1.0"
+  "@tokenring-ai/agent": "0.1.0",
+  "@tokenring-ai/utility": "0.1.0"
  },
  "devDependencies": {
   "vitest": "^4.0.13",

@@ -1,11 +1,12 @@
 import {Agent} from "@tokenring-ai/agent";
+import {TokenRingToolDefinition} from "@tokenring-ai/chat/types";
 import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
-export const description = "Get a NewsRPM article by slug";
-export const name = "newsrpm/getArticleBySlug";
+const description = "Get a NewsRPM article by slug";
+const name = "newsrpm/getArticleBySlug";
 
-export async function execute(args: { slug?: string }, agent: Agent) {
+async function execute(args: z.infer<typeof inputSchema>, agent: Agent) {
   const service = agent.requireServiceByType(NewsRPMService);
   if (!args.slug) {
     throw new Error(`[${name}] Slug is required`);
@@ -13,6 +14,10 @@ export async function execute(args: { slug?: string }, agent: Agent) {
   return await service.getArticleBySlug(args.slug);
 }
 
-export const inputSchema = z.object({
+const inputSchema = z.object({
   slug: z.string().min(1).describe("The unique slug identifier of the article to retrieve")
 });
+
+export default {
+  name, description, inputSchema, execute,
+} as TokenRingToolDefinition<typeof inputSchema>;

@@ -1,13 +1,18 @@
 import {Agent} from "@tokenring-ai/agent";
+import {TokenRingToolDefinition} from "@tokenring-ai/chat/types";
 import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
-export const description = "List providers present in this NewsRPM instance";
-export const name = "newsrpm/listProviders";
+const description = "List providers present in this NewsRPM instance";
+const name = "newsrpm/listProviders";
 
-export async function execute(_args: {}, agent: Agent) {
+async function execute(_args: z.infer<typeof inputSchema>, agent: Agent) {
   const service = agent.requireServiceByType(NewsRPMService);
   return await service.listProviders();
 }
 
-export const inputSchema = z.object({});
+const inputSchema = z.object({});
+
+export default {
+  name, description, inputSchema, execute,
+} as TokenRingToolDefinition<typeof inputSchema>;

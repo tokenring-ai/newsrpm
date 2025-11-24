@@ -1,11 +1,12 @@
 import {Agent} from "@tokenring-ai/agent";
+import {TokenRingToolDefinition} from "@tokenring-ai/chat/types";
 import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
-export const description = "Upload (create/update) an article to NewsRPM";
-export const name = "newsrpm/uploadArticle";
+const description = "Upload (create/update) an article to NewsRPM";
+const name = "newsrpm/uploadArticle";
 
-export async function execute(args: { article?: any }, agent: Agent) {
+async function execute(args: z.infer<typeof inputSchema>, agent: Agent) {
   const service = agent.requireServiceByType(NewsRPMService);
   if (!args.article) {
     throw new Error(`[${name}] Article is required`);
@@ -13,6 +14,10 @@ export async function execute(args: { article?: any }, agent: Agent) {
   return await service.uploadArticle(args.article);
 }
 
-export const inputSchema = z.object({
+const inputSchema = z.object({
   article: z.any().describe("Article object to upload. See pkg/newsrpm/design/newsrpm.openapi.json#/components/schemas/article for the detailed schema")
 });
+
+export default {
+  name, description, inputSchema, execute,
+} as TokenRingToolDefinition<typeof inputSchema>;
