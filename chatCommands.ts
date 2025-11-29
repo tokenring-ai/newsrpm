@@ -1,1 +1,1 @@
-export {default as newsrpm} from "./chatCommands/newsrpm.ts";
+export {default as newsrpm} from "./commands/newsrpm.ts";

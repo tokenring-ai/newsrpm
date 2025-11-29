@@ -1,15 +1,20 @@
 {
  "name": "@tokenring-ai/newsrpm",
- "version": "0.1.0",
+ "version": "0.2.0",
  "description": "NewsRPM integration for Token Ring (search, retrieve, upload articles)",
  "dependencies": {
-  "@tokenring-ai/ai-client": "0.1.0",
-  "@tokenring-ai/agent": "0.1.0",
-  "@tokenring-ai/utility": "0.1.0"
+  "@tokenring-ai/app": "0.2.0",
+  "@tokenring-ai/chat": "0.2.0",
+  "zod": "^4.1.13",
+  "@tokenring-ai/ai-client": "0.2.0",
+  "@tokenring-ai/agent": "0.2.0",
+  "@tokenring-ai/utility": "0.2.0",
+  "@tokenring-ai/scripting": "0.2.0",
+  "@tokenring-ai/filesystem": "0.2.0"
  },
  "devDependencies": {
-  "vitest": "^4.0.13",
-  "@vitest/coverage-v8": "^4.0.13"
+  "vitest": "^4.0.14",
+  "@vitest/coverage-v8": "^4.0.14"
  },
  "exports": {
   ".": "./index.ts",

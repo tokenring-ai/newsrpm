@@ -5,33 +5,115 @@ import NewsRPMService from "../NewsRPMService.ts";
 
 const description = "/newsrpm [index|search|article|providers|body|upload] - Interact with NewsRPM";
 
+const help: string = `# NewsRPM Command
 
-function help(): Array<string> {
-  return [
-    "/newsrpm [action] - Interact with NewsRPM service for news articles and data",
-    "  Actions:",
-    "    index <key> [options]     - Search indexed data by key",
-    "    search [options]          - Search articles with filters",
-    "    article slug <slug>       - Get article by slug",
-    "    article id <id>           - Get article by ID",
-    "    providers                 - List available providers",
-    "    body <bodyId> [options]   - Get article body content",
-    "    upload --json <path>      - Upload article from JSON file",
-    "",
-    "  Common Options:",
-    "    --save <path>             - Save response to JSON file",
-    "    --count <n>               - Limit number of results",
-    "    --offset <n>              - Skip number of results",
-    "    --min <iso>               - Minimum date (ISO format)",
-    "    --max <iso>               - Maximum date (ISO format)",
-    "",
-    "  Examples:",
-    "    /newsrpm search --fulltext \"AI\" --count 10",
-    "    /newsrpm article slug \"my-article-slug\"",
-    "    /newsrpm index publisher --value \"Reuters,BBC\"",
-    "    /newsrpm providers --save providers.json",
-  ];
-}
+Interact with NewsRPM service for news articles and data.
+
+## Usage
+
+\`/newsrpm [action] [options]\`
+
+## Actions
+
+### \`index <key> [options]\`
+Search indexed data by key.
+
+**Options:**
+- \`--value <values>\` - Filter by value(s), comma-separated for multiple
+- \`--count <n>\` - Limit number of results
+- \`--offset <n>\` - Skip number of results
+- \`--min <iso>\` - Minimum date (ISO format)
+- \`--max <iso>\` - Maximum date (ISO format)
+- \`--order <order>\` - Sort order
+- \`--save <path>\` - Save response to JSON file
+
+**Example:**
+\`\`\`
+/newsrpm index publisher --value "Reuters,BBC" --count 20
+\`\`\`
+
+### \`search [options]\`
+Search articles with filters.
+
+**Options:**
+- \`--publisher <names>\` - Filter by publisher(s), comma-separated
+- \`--provider <names>\` - Filter by provider(s), comma-separated
+- \`--type <types>\` - Filter by type(s), comma-separated
+- \`--fulltext <query>\` - Full-text search query
+- \`--sponsored <true|false>\` - Filter by sponsored status
+- \`--language <lang>\` - Filter by language
+- \`--count <n>\` - Limit number of results
+- \`--offset <n>\` - Skip number of results
+- \`--min <iso>\` - Minimum date (ISO format)
+- \`--max <iso>\` - Maximum date (ISO format)
+- \`--save <path>\` - Save response to JSON file
+
+**Example:**
+\`\`\`
+/newsrpm search --fulltext "AI" --count 10 --publisher "Reuters"
+\`\`\`
+
+### \`article slug <slug>\`
+Get article by slug.
+
+**Options:**
+- \`--save <path>\` - Save response to JSON file
+
+**Example:**
+\`\`\`
+/newsrpm article slug "my-article-slug"
+\`\`\`
+
+### \`article id <id>\`
+Get article by ID.
+
+**Options:**
+- \`--save <path>\` - Save response to JSON file
+
+**Example:**
+\`\`\`
+/newsrpm article id 12345
+\`\`\`
+
+### \`providers\`
+List available news providers.
+
+**Options:**
+- \`--save <path>\` - Save response to JSON file
+
+**Example:**
+\`\`\`
+/newsrpm providers --save providers.json
+\`\`\`
+
+### \`body <bodyId> [options]\`
+Get article body content.
+
+**Options:**
+- \`--render\` - Render the body content
+- \`--save <path>\` - Save response to JSON file
+
+**Example:**
+\`\`\`
+/newsrpm body abc123 --render
+\`\`\`
+
+### \`upload --json <path>\`
+Upload article from JSON file.
+
+**Example:**
+\`\`\`
+/newsrpm upload --json article.json
+\`\`\`
+
+## Common Options
+
+- \`--save <path>\` - Save response to JSON file
+- \`--count <n>\` - Limit number of results
+- \`--offset <n>\` - Skip number of results  
+- \`--min <iso>\` - Minimum date (ISO format)
+- \`--max <iso>\` - Maximum date (ISO format)
+`;
 
 function parseFlags(args: string[]): { flags: Record<string, string | number | boolean>; rest: string[] } {
   const flags: Record<string, string | number | boolean> = {};
@@ -66,7 +148,7 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
 
   const [sub, ...rest] = remainder.trim().split(/\s+/);
   if (!sub) {
-    help().forEach((l) => agent.infoLine(l));
+    agent.infoLine(help);
     return;
   }
   const {flags, rest: r} = parseFlags(rest);
@@ -182,7 +264,7 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
       agent.infoLine(`Uploaded. id=${res?.id}`);
     } else {
       agent.infoLine("Unknown subcommand.");
-      help().forEach((l) => agent.infoLine(l));
+      agent.infoLine(help);
     }
   } catch (e: any) {
     agent.errorLine(`NewsRPM command error: ${e?.message || String(e)}`);
