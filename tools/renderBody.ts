@@ -4,7 +4,7 @@ import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
 const description = "Retrieve a rendered (HTML) article body by bodyId";
-const name = "newsrpm/renderBody";
+const name = "newsrpm_renderBody";
 
 async function execute(args: z.infer<typeof inputSchema>, agent: Agent) {
   const service = agent.requireServiceByType(NewsRPMService);

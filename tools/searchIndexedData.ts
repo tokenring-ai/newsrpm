@@ -5,7 +5,7 @@ import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
 const description = "Search NewsRPM indexedData by taxonomy key/value";
-const name = "newsrpm/searchIndexedData";
+const name = "newsrpm_searchIndexedData";
 
 async function execute(args: z.infer<typeof inputSchema>, agent: Agent) {
   const service = agent.requireServiceByType(NewsRPMService);

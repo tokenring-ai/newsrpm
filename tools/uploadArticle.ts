@@ -4,7 +4,7 @@ import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
 const description = "Upload (create/update) an article to NewsRPM";
-const name = "newsrpm/uploadArticle";
+const name = "newsrpm_uploadArticle";
 
 async function execute(args: z.infer<typeof inputSchema>, agent: Agent) {
   const service = agent.requireServiceByType(NewsRPMService);

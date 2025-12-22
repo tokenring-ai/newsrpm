@@ -4,7 +4,7 @@ import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
 const description = "Get a NewsRPM article by slug";
-const name = "newsrpm/getArticleBySlug";
+const name = "newsrpm_getArticleBySlug";
 
 async function execute(args: z.infer<typeof inputSchema>, agent: Agent) {
   const service = agent.requireServiceByType(NewsRPMService);
