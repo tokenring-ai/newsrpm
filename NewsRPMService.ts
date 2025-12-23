@@ -48,10 +48,6 @@ export default class NewsRPMService extends HttpService implements TokenRingServ
     this.defaultHeaders = this.buildHeaders();
   }
 
-  async attach(agent: Agent): Promise<void> {
-    // No state initialization needed
-  }
-
   async searchIndexedData(body: any): Promise<MultipleArticleResponse> {
     if (!body?.key) throw Object.assign(new Error('key is required'), {status: 400});
     const path = this.buildPath('/search/indexedData');
