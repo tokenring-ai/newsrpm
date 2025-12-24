@@ -26,7 +26,9 @@ This package is part of the TokenRing monorepo. When used within TokenRing appli
 - `@tokenring-ai/agent`: For agent integration
 - `@tokenring-ai/app`: For plugin architecture
 - `@tokenring-ai/utility`: For HTTP service utilities
-- `@tokenring-ai/websearch`: For search interfaces
+- `@tokenring-ai/ai-client`: For AI client integration
+- `@tokenring-ai/scripting`: For scripting function registration
+- `@tokenring-ai/filesystem`: For file system operations
 - `zod`: For configuration validation
 
 ### Package Registration
@@ -269,7 +271,7 @@ The package provides 8 tools for agent integration, automatically registered wit
 const results = await agent.callTool("newsrpm/searchArticles", {
   publisher: "TechCrunch",
   fullText: "machine learning",
-  count: 10
+  count: 20
 });
 ```
 
@@ -459,14 +461,7 @@ Choose the mode that matches your NewsRPM deployment security requirements.
 ```typescript
 {
   success: boolean;
-  body: {
-    v: number;
-    chunks: Array<{
-      name: string;
-      format: string;
-      content: string;
-    }>
-  }
+  body: { v: number; chunks: Array<{ name: string; format: string; content: string }> }
 }
 ```
 
@@ -525,20 +520,20 @@ if (config) {
 
 ### Building
 ```bash
-npm run build
+bun run build
 ```
 
 ### Testing
 ```bash
-npm test
-npm run test:watch
-npm run test:ui
+bun run test
+bun run test:watch
+bun run test:coverage
 ```
 
 ### Development Commands
 ```bash
-npm run dev          # Watch mode compilation
-npm run clean        # Clean build directory
+bun run dev          # Watch mode compilation
+bun run clean        # Clean build directory
 ```
 
 ## Integration Examples
