@@ -157,7 +157,7 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
     if (flags.save) {
       const fsService = agent.requireServiceByType(FileSystemService);
       const path = String(flags.save);
-      await fsService.writeFile(path, JSON.stringify(data, null, 2));
+      await fsService.writeFile(path, JSON.stringify(data, null, 2), agent);
       agent.infoLine(`Saved raw JSON to ${path}`);
     }
   };
@@ -258,7 +258,7 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
         return;
       }
       const fsService = agent.requireServiceByType(FileSystemService);
-      const raw = await fsService.readFile(jsonPath, 'utf-8');
+      const raw = await fsService.readFile(jsonPath, 'utf-8', agent);
       const article = JSON.parse(raw);
       const res = await nrpm.uploadArticle(article);
       agent.infoLine(`Uploaded. id=${res?.id}`);
