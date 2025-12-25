@@ -16,6 +16,7 @@ NewsRPM is a powerful API for storing, indexing, and retrieving news articles an
 - **Flexible Authentication**: Multiple authentication modes (header/query-based)
 - **Robust Error Handling**: Built-in retry logic, timeout handling, and comprehensive error responses
 - **Plugin Integration**: Seamless integration with TokenRing's plugin architecture
+- **Scripting Functions**: Global functions available when scripting service is enabled
 
 ## Installation
 
@@ -269,8 +270,8 @@ The package provides 8 tools for agent integration, automatically registered wit
 ```typescript
 // In an agent context
 const results = await agent.callTool("newsrpm/searchArticles", {
+  fullText: "artificial intelligence",
   publisher: "TechCrunch",
-  fullText: "machine learning",
   count: 20
 });
 ```
@@ -590,6 +591,7 @@ const result = await service.uploadArticle(article);
 - Rate limiting: 429 responses are automatically retried with exponential backoff
 - Timeout: Default timeout is 30 seconds; adjust based on your needs
 - Authentication: Choose appropriate authMode for your deployment (headers preferred for server-side)
+- The article upload schema requires specific fields including provider, headline, slug, date, and quality
 
 ## License
 
