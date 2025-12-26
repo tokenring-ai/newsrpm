@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "vitest": "catalog:",
-    "@vitest/coverage-v8": "^4.0.15",
+    "@vitest/coverage-v8": "^4.0.16",
     "typescript": "catalog:"
   },
   "exports": {
