@@ -60,7 +60,6 @@ export default {
     app.waitForService(ChatService, chatService =>
       chatService.addTools(packageJSON.name, tools)
     );
-    // const config = app.getConfigSlice('newsrpm', NewsRPMConfigSchema);
     if (config.newsrpm) {
       app.addServices(new NewsRPMService(config.newsrpm));
     }
