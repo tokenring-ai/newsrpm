@@ -1,5 +1,5 @@
 import {Agent} from "@tokenring-ai/agent";
-import {TokenRingToolDefinition} from "@tokenring-ai/chat/types";
+import {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
 
 import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
