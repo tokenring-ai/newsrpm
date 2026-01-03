@@ -22,16 +22,6 @@ NewsRPM is a powerful API for storing, indexing, and retrieving news articles an
 
 This package is part of the TokenRing monorepo. When used within TokenRing applications, it can be enabled in the registry like other TokenRing packages.
 
-### Package Dependencies
-
-- `@tokenring-ai/agent`: For agent integration
-- `@tokenring-ai/app`: For plugin architecture
-- `@tokenring-ai/utility`: For HTTP service utilities
-- `@tokenring-ai/ai-client`: For AI client integration
-- `@tokenring-ai/scripting`: For scripting function registration
-- `@tokenring-ai/filesystem`: For file system operations
-- `zod`: For configuration validation
-
 ### Package Registration
 
 ```typescript
@@ -595,4 +585,4 @@ const result = await service.uploadArticle(article);
 
 ## License
 
-This package is released under the repository's MIT License.
+MIT License - see [LICENSE](./LICENSE) file for details.
