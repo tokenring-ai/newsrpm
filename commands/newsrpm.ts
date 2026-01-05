@@ -258,10 +258,14 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
         return;
       }
       const fsService = agent.requireServiceByType(FileSystemService);
-      const raw = await fsService.readFile(jsonPath, 'utf-8', agent);
-      const article = JSON.parse(raw);
-      const res = await nrpm.uploadArticle(article);
-      agent.infoLine(`Uploaded. id=${res?.id}`);
+      const raw = await fsService.readTextFile(jsonPath, agent);
+      if (raw) {
+        const article = JSON.parse(raw);
+        const res = await nrpm.uploadArticle(article);
+        agent.infoLine(`Uploaded. id=${res?.id}`);
+      } else {
+        agent.errorLine(`Failed to read file: ${jsonPath}`);
+      }
     } else {
       agent.infoLine("Unknown subcommand.");
       agent.infoLine(help);
