@@ -1,4 +1,3 @@
-import Agent from "@tokenring-ai/agent/Agent";
 import {TokenRingService} from "@tokenring-ai/app/types";
 import {HttpService} from "@tokenring-ai/utility/http/HttpService";
 import {z} from "zod";

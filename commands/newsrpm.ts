@@ -1,6 +1,7 @@
 import Agent from "@tokenring-ai/agent/Agent";
 import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {FileSystemService} from "@tokenring-ai/filesystem";
+import markdownList from "@tokenring-ai/utility/string/markdownList";
 import NewsRPMService from "../NewsRPMService.ts";
 
 const description = "/newsrpm [index|search|article|providers|body|upload] - Interact with NewsRPM";
@@ -148,7 +149,7 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
 
   const [sub, ...rest] = remainder.trim().split(/\s+/);
   if (!sub) {
-    agent.infoLine(help);
+    agent.infoMessage(help);
     return;
   }
   const {flags, rest: r} = parseFlags(rest);
@@ -158,7 +159,7 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
       const fsService = agent.requireServiceByType(FileSystemService);
       const path = String(flags.save);
       await fsService.writeFile(path, JSON.stringify(data, null, 2), agent);
-      agent.infoLine(`Saved raw JSON to ${path}`);
+      agent.infoMessage(`Saved raw JSON to ${path}`);
     }
   };
 
@@ -167,7 +168,7 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
       const [key, ...restKey] = r;
       const keyArg = key;
       if (!keyArg) {
-        agent.errorLine("Usage: /newsrpm index <key> [flags]");
+        agent.errorMessage("Usage: /newsrpm index <key> [flags]");
         return;
       }
       let value: string | string[] | undefined = flags.value as string | undefined;
@@ -182,12 +183,14 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
         order: flags.order || undefined,
       });
       const top = Array.isArray(res?.rows) ? res.rows.slice(0, 5) : [];
+      const lines: string[] = [];
       if (top.length) {
-        agent.infoLine("Top results:");
-        for (const a of top) agent.infoLine(`- ${a.headline ?? '(no headline)'} [${a.provider ?? ''}] ${a.slug ?? ''}`);
+        lines.push("Top results:");
+        for (const a of top) lines.push(`- ${a.headline ?? '(no headline)'} [${a.provider ?? ''}] ${a.slug ?? ''}`);
       } else {
-        agent.infoLine("No results.");
+        lines.push("No results.");
       }
+      agent.infoMessage(lines.join("\n"));
       await saveIfRequested(res);
     } else if (sub === 'search') {
       const rows = await nrpm.searchArticles({
@@ -203,58 +206,63 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
         language: flags.language as string | undefined,
       });
       const top = Array.isArray(rows?.rows) ? rows.rows.slice(0, 5) : [];
+      const searchLines: string[] = [];
       if (top.length) {
-        agent.infoLine("Top results:");
-        for (const a of top) agent.infoLine(`- ${a.headline ?? '(no headline)'} [${a.provider ?? ''}] ${a.slug ?? ''}`);
+        searchLines.push("Top results:",
+          markdownList(top.map(a => `${a.headline ?? '(no headline)'} [${a.provider ?? ''}] ${a.slug ?? ''}`))
+        );
       } else {
-        agent.infoLine("No results.");
+        searchLines.push("No results.");
       }
+      agent.infoMessage(searchLines.join("\n"));
       await saveIfRequested(rows);
     } else if (sub === 'article') {
       const which = r[0];
       if (which === 'slug') {
         const slug = r[1];
         if (!slug) {
-          agent.errorLine("Usage: /newsrpm article slug <slug>");
+          agent.errorMessage("Usage: /newsrpm article slug <slug>");
           return;
         }
         const res = await nrpm.getArticleBySlug(slug);
-        agent.infoLine(res?.doc?.headline ?? "(no headline)");
+        agent.infoMessage(res?.doc?.headline ?? "(no headline)");
         await saveIfRequested(res);
       } else if (which === 'id') {
         const id = Number(r[1]);
         if (!id) {
-          agent.errorLine("Usage: /newsrpm article id <id>");
+          agent.errorMessage("Usage: /newsrpm article id <id>");
           return;
         }
         const res = await nrpm.getArticleById(id);
-        agent.infoLine(res?.doc?.headline ?? "(no headline)");
+        agent.infoMessage(res?.doc?.headline ?? "(no headline)");
         await saveIfRequested(res);
       } else {
-        agent.errorLine("Usage: /newsrpm article slug <slug> | id <id>");
+        agent.errorMessage("Usage: /newsrpm article slug <slug> | id <id>");
       }
     } else if (sub === 'providers') {
       const res = await nrpm.listProviders();
       const providers = Array.isArray(res?.rows) ? res.rows.map((r: any) => r.provider).filter(Boolean) : [];
+      const providerLines: string[] = [];
       if (providers.length) {
-        agent.infoLine("Providers:");
-        for (const p of providers) agent.infoLine(`- ${p}`);
-      } else agent.infoLine("No providers returned.");
+        providerLines.push("Providers:");
+        for (const p of providers) providerLines.push(`- ${p}`);
+      } else providerLines.push("No providers returned.");
+      agent.infoMessage(providerLines.join("\n"));
       await saveIfRequested(res);
     } else if (sub === 'body') {
       const bodyId = r[0];
       if (!bodyId) {
-        agent.errorLine("Usage: /newsrpm body <bodyId> [--render]");
+        agent.errorMessage("Usage: /newsrpm body <bodyId> [--render]");
         return;
       }
       const res = flags.render ? await nrpm.renderBody(bodyId) : await nrpm.getBody(bodyId);
       const count = res?.body?.chunks?.length ?? 0;
-      agent.infoLine(`Body chunks: ${count}`);
+      agent.infoMessage(`Body chunks: ${count}`);
       await saveIfRequested(res);
     } else if (sub === 'upload') {
       const jsonPath = flags.json as string | undefined;
       if (!jsonPath) {
-        agent.errorLine("Usage: /newsrpm upload --json <path>");
+        agent.errorMessage("Usage: /newsrpm upload --json <path>");
         return;
       }
       const fsService = agent.requireServiceByType(FileSystemService);
@@ -262,16 +270,16 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
       if (raw) {
         const article = JSON.parse(raw);
         const res = await nrpm.uploadArticle(article);
-        agent.infoLine(`Uploaded. id=${res?.id}`);
+        agent.infoMessage(`Uploaded. id=${res?.id}`);
       } else {
-        agent.errorLine(`Failed to read file: ${jsonPath}`);
+        agent.errorMessage(`Failed to read file: ${jsonPath}`);
       }
     } else {
-      agent.infoLine("Unknown subcommand.");
-      agent.infoLine(help);
+      agent.infoMessage("Unknown subcommand.");
+      agent.infoMessage(help);
     }
   } catch (e: any) {
-    agent.errorLine(`NewsRPM command error: ${e?.message || String(e)}`);
+    agent.errorMessage(`NewsRPM command error: ${e?.message || String(e)}`);
   }
 }
 
