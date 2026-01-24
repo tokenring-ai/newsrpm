@@ -58,7 +58,7 @@ export default {
       );
     });
     app.waitForService(ChatService, chatService =>
-      chatService.addTools(packageJSON.name, tools)
+      chatService.addTools(tools)
     );
     if (config.newsrpm) {
       app.addServices(new NewsRPMService(config.newsrpm));

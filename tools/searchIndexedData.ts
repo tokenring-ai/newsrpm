@@ -6,6 +6,7 @@ import NewsRPMService from "../NewsRPMService.ts";
 
 const description = "Search NewsRPM indexedData by taxonomy key/value";
 const name = "newsrpm_searchIndexedData";
+const displayName = "Newsrpm/searchIndexedData";
 
 async function execute(args: z.infer<typeof inputSchema>, agent: Agent) {
   const service = agent.requireServiceByType(NewsRPMService);
@@ -26,5 +27,5 @@ const inputSchema = z.object({
 });
 
 export default {
-  name, description, inputSchema, execute,
+  name, displayName, description, inputSchema, execute,
 } satisfies TokenRingToolDefinition<typeof inputSchema>;
