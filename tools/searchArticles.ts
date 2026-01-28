@@ -1,5 +1,5 @@
 import {Agent} from "@tokenring-ai/agent";
-import {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
+import {TokenRingToolDefinition, type TokenRingToolJSONResult} from "@tokenring-ai/chat/schema";
 import {z} from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
@@ -7,9 +7,13 @@ const description = "Search NewsRPM articles by publisher/provider/type/fullText
 const name = "newsrpm_searchArticles";
 const displayName = "Newsrpm/searchArticles";
 
-async function execute(args: z.infer<typeof inputSchema>, agent: Agent) {
+async function execute(args: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolJSONResult<any>> {
   const service = agent.requireServiceByType(NewsRPMService);
-  return await service.searchArticles(args);
+  const result = await service.searchArticles(args);
+  return {
+    type: "json",
+    data: result
+  };
 }
 
 const inputSchema = z.object({
