@@ -5,7 +5,7 @@
   "dependencies": {
     "@tokenring-ai/app": "0.2.0",
     "@tokenring-ai/chat": "0.2.0",
-    "zod": "catalog:",
+    "zod": "^4.3.6",
     "@tokenring-ai/ai-client": "0.2.0",
     "@tokenring-ai/agent": "0.2.0",
     "@tokenring-ai/utility": "0.2.0",
@@ -13,9 +13,9 @@
     "@tokenring-ai/filesystem": "0.2.0"
   },
   "devDependencies": {
-    "vitest": "catalog:",
+    "vitest": "^4.0.18",
     "@vitest/coverage-v8": "^4.0.18",
-    "typescript": "catalog:"
+    "typescript": "^5.9.3"
   },
   "exports": {
     ".": "./index.ts",
