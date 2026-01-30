@@ -3,8 +3,9 @@ import {ChatService} from "@tokenring-ai/chat";
 import {ScriptingService} from "@tokenring-ai/scripting";
 import {ScriptingThis} from "@tokenring-ai/scripting/ScriptingService";
 import {z} from "zod";
-import NewsRPMService, {NewsRPMConfigSchema} from "./NewsRPMService.ts";
+import NewsRPMService from "./NewsRPMService.ts";
 import packageJSON from "./package.json";
+import {NewsRPMConfigSchema} from "./schema.ts";
 import tools from "./tools.ts";
 
 const packageConfigSchema = z.object({

@@ -1,25 +1,6 @@
 import {TokenRingService} from "@tokenring-ai/app/types";
 import {HttpService} from "@tokenring-ai/utility/http/HttpService";
-import {z} from "zod";
-
-export const NewsRPMConfigSchema = z.object({
-  apiKey: z.string(),
-  authMode: z.enum(['privateHeader', 'publicHeader', 'privateQuery', 'publicQuery']).optional(),
-  baseUrl: z.string().optional(),
-  requestDefaults: z.object({
-    headers: z.record(z.string(), z.string()).optional(),
-    timeoutMs: z.number().optional(),
-  }).optional(),
-  retry: z.object({
-    maxRetries: z.number().optional(),
-    baseDelayMs: z.number().optional(),
-    maxDelayMs: z.number().optional(),
-    jitter: z.boolean().optional(),
-  }).optional(),
-  fetchImpl: z.any().optional(),
-});
-
-export type NewsRPMConfig = z.infer<typeof NewsRPMConfigSchema>;
+import type {ParsedNewsRPMConfig} from "./schema.ts";
 
 export type MultipleArticleResponse = { success: boolean; rows: any[] };
 export type SingleArticleResponse = { success: boolean; doc: any };
@@ -33,17 +14,13 @@ export default class NewsRPMService extends HttpService implements TokenRingServ
   name = "NewsRPMService";
   description = "Service for interacting with a NewsRPM instance";
 
-  private readonly config: NewsRPMConfig;
-  private readonly fetchImpl: typeof fetch;
   protected baseUrl: string;
   protected defaultHeaders: Record<string, string>;
 
-  constructor(config: NewsRPMConfig) {
+  constructor(private config: ParsedNewsRPMConfig) {
     super();
     if (!config?.apiKey) throw new Error("NewsRPMService requires apiKey");
-    this.config = config;
-    this.fetchImpl = config.fetchImpl ?? fetch;
-    this.baseUrl = (config.baseUrl ?? 'https://api.newsrpm.com').replace(/\/$/, '');
+    this.baseUrl = config.baseUrl
     this.defaultHeaders = this.buildHeaders();
   }
 
