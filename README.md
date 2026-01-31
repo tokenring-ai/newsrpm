@@ -502,8 +502,10 @@ pkg/newsrpm/
 ├── NewsRPMService.ts                 # Core service class
 ├── plugin.ts                         # Plugin registration
 ├── tools.ts                          # Tool exports
+├── chatCommands.ts                   # Chat command exports
+├── schema.ts                         # Configuration schema
 ├── commands/
-│   └── newsrpm.ts                    # Chat command
+│   └── newsrpm.ts                    # Chat command implementation
 ├── tools/
 │   ├── searchIndexedData.ts
 │   ├── searchArticles.ts
@@ -541,10 +543,8 @@ The package depends on:
 - `@tokenring-ai/app`: Application framework for plugin integration
 - `@tokenring-ai/chat`: Chat functionality for tools registration
 - `@tokenring-ai/agent`: Agent framework
-- `@tokenring-ai/utility`: Utility functions
+- `@tokenring-ai/utility`: Utility functions including HttpService
 - `@tokenring-ai/scripting`: Scripting service for global functions
-- `@tokenring-ai/filesystem`: File system operations
-- `@tokenring-ai/ai-client`: AI client integration
 - `zod`: Runtime type validation
 
 ## Development
