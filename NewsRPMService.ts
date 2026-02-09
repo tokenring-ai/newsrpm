@@ -11,7 +11,7 @@ export type ArticleBodyResponse = {
 };
 
 export default class NewsRPMService extends HttpService implements TokenRingService {
-  name = "NewsRPMService";
+  readonly name = "NewsRPMService";
   description = "Service for interacting with a NewsRPM instance";
 
   protected baseUrl: string;
