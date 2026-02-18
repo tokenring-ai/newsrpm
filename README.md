@@ -186,11 +186,11 @@ const uploadResult = await service.uploadArticle({
 
 ## Tools Integration
 
-The package provides 8 tools for agent integration, automatically registered with the TokenRing chat service:
+The package provides 8 tools for agent integration, automatically registered with the TokenRing chat service.
 
 ### Available Tools
 
-1. **newsrpm/searchIndexedData** - Search by taxonomy keys
+1. **newsrpm_searchIndexedData** - Search by taxonomy keys
    ```typescript
    {
      key: "topic",
@@ -199,7 +199,7 @@ The package provides 8 tools for agent integration, automatically registered wit
    }
    ```
 
-2. **newsrpm/searchArticles** - Search articles with filters
+2. **newsrpm_searchArticles** - Search articles with filters
    ```typescript
    {
      publisher: "Reuters",
@@ -208,21 +208,21 @@ The package provides 8 tools for agent integration, automatically registered wit
    }
    ```
 
-3. **newsrpm/getArticleBySlug** - Get article by slug
+3. **newsrpm_getArticleBySlug** - Get article by slug
    ```typescript
    {
      slug: "example-article-slug"
    }
    ```
 
-4. **newsrpm/getArticleById** - Get article by ID
+4. **newsrpm_getArticleById** - Get article by ID
    ```typescript
    {
      id: 12345
    }
    ```
 
-5. **newsrpm/uploadArticle** - Upload new or update existing article
+5. **newsrpm_uploadArticle** - Upload new or update existing article
    ```typescript
    {
      article: {
@@ -235,19 +235,19 @@ The package provides 8 tools for agent integration, automatically registered wit
    }
    ```
 
-6. **newsrpm/listProviders** - List available news providers
+6. **newsrpm_listProviders** - List available news providers
    ```typescript
    {}
    ```
 
-7. **newsrpm/getBody** - Get article body in native format
+7. **newsrpm_getBody** - Get article body in native format
    ```typescript
    {
      bodyId: "body-abc123"
    }
    ```
 
-8. **newsrpm/renderBody** - Render article body as HTML
+8. **newsrpm_renderBody** - Render article body as HTML
    ```typescript
    {
      bodyId: "body-abc123"
@@ -258,7 +258,7 @@ The package provides 8 tools for agent integration, automatically registered wit
 
 ```typescript
 // In an agent context
-const results = await agent.callTool("newsrpm/searchArticles", {
+const results = await agent.callTool("newsrpm_searchArticles", {
   fullText: "artificial intelligence",
   publisher: "TechCrunch",
   count: 20
@@ -589,7 +589,7 @@ const techNews = await service.searchArticles({
 ```typescript
 // Tools are automatically available to agents
 const agent = new Agent();
-const articles = await agent.callTool("newsrpm/searchArticles", {
+const articles = await agent.callTool("newsrpm_searchArticles", {
   fullText: "artificial intelligence",
   publisher: "TechCrunch",
   count: 20
