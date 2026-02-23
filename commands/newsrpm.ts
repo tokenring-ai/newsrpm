@@ -1,5 +1,6 @@
 import Agent from "@tokenring-ai/agent/Agent";
 import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
 import {FileSystemService} from "@tokenring-ai/filesystem";
 import markdownList from "@tokenring-ai/utility/string/markdownList";
 import NewsRPMService from "../NewsRPMService.ts";
@@ -144,13 +145,12 @@ function parseFlags(args: string[]): { flags: Record<string, string | number | b
   return {flags, rest};
 }
 
-async function execute(remainder: string, agent: Agent): Promise<void> {
+async function execute(remainder: string, agent: Agent): Promise<string> {
   const nrpm = agent.requireServiceByType(NewsRPMService);
 
   const [sub, ...rest] = remainder.trim().split(/\s+/);
   if (!sub) {
-    agent.infoMessage(help);
-    return;
+    return help;
   }
   const {flags, rest: r} = parseFlags(rest);
 
@@ -159,8 +159,9 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
       const fsService = agent.requireServiceByType(FileSystemService);
       const path = String(flags.save);
       await fsService.writeFile(path, JSON.stringify(data, null, 2), agent);
-      agent.infoMessage(`Saved raw JSON to ${path}`);
+      return `Saved raw JSON to ${path}`;
     }
+    return "";
   };
 
   try {
@@ -168,8 +169,7 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
       const [key, ...restKey] = r;
       const keyArg = key;
       if (!keyArg) {
-        agent.errorMessage("Usage: /newsrpm index <key> [flags]");
-        return;
+        throw new CommandFailedError("Usage: /newsrpm index <key> [flags]");
       }
       let value: string | string[] | undefined = flags.value as string | undefined;
       if (value && value.includes(',')) value = value.split(',').map(s => s.trim()).filter(Boolean);
@@ -190,8 +190,8 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
       } else {
         lines.push("No results.");
       }
-      agent.infoMessage(lines.join("\n"));
-      await saveIfRequested(res);
+      const saved = await saveIfRequested(res);
+      return lines.join("\n") + (saved ? "\n" + saved : "");
     } else if (sub === 'search') {
       const rows = await nrpm.searchArticles({
         publisher: flags.publisher ? String(flags.publisher).split(',').map(s => s.trim()).filter(Boolean) : undefined,
@@ -214,30 +214,28 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
       } else {
         searchLines.push("No results.");
       }
-      agent.infoMessage(searchLines.join("\n"));
-      await saveIfRequested(rows);
+      const saved = await saveIfRequested(rows);
+      return searchLines.join("\n") + (saved ? "\n" + saved : "");
     } else if (sub === 'article') {
       const which = r[0];
       if (which === 'slug') {
         const slug = r[1];
         if (!slug) {
-          agent.errorMessage("Usage: /newsrpm article slug <slug>");
-          return;
+          throw new CommandFailedError("Usage: /newsrpm article slug <slug>");
         }
         const res = await nrpm.getArticleBySlug(slug);
-        agent.infoMessage(res?.doc?.headline ?? "(no headline)");
-        await saveIfRequested(res);
+        const saved = await saveIfRequested(res);
+        return (res?.doc?.headline ?? "(no headline)") + (saved ? "\n" + saved : "");
       } else if (which === 'id') {
         const id = Number(r[1]);
         if (!id) {
-          agent.errorMessage("Usage: /newsrpm article id <id>");
-          return;
+          throw new CommandFailedError("Usage: /newsrpm article id <id>");
         }
         const res = await nrpm.getArticleById(id);
-        agent.infoMessage(res?.doc?.headline ?? "(no headline)");
-        await saveIfRequested(res);
+        const saved = await saveIfRequested(res);
+        return (res?.doc?.headline ?? "(no headline)") + (saved ? "\n" + saved : "");
       } else {
-        agent.errorMessage("Usage: /newsrpm article slug <slug> | id <id>");
+        throw new CommandFailedError("Usage: /newsrpm article slug <slug> | id <id>");
       }
     } else if (sub === 'providers') {
       const res = await nrpm.listProviders();
@@ -247,42 +245,38 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
         providerLines.push("Providers:");
         for (const p of providers) providerLines.push(`- ${p}`);
       } else providerLines.push("No providers returned.");
-      agent.infoMessage(providerLines.join("\n"));
-      await saveIfRequested(res);
+      const saved = await saveIfRequested(res);
+      return providerLines.join("\n") + (saved ? "\n" + saved : "");
     } else if (sub === 'body') {
       const bodyId = r[0];
       if (!bodyId) {
-        agent.errorMessage("Usage: /newsrpm body <bodyId> [--render]");
-        return;
+        throw new CommandFailedError("Usage: /newsrpm body <bodyId> [--render]");
       }
       const res = flags.render ? await nrpm.renderBody(bodyId) : await nrpm.getBody(bodyId);
       const count = res?.body?.chunks?.length ?? 0;
-      agent.infoMessage(`Body chunks: ${count}`);
-      await saveIfRequested(res);
+      const saved = await saveIfRequested(res);
+      return `Body chunks: ${count}` + (saved ? "\n" + saved : "");
     } else if (sub === 'upload') {
       const jsonPath = flags.json as string | undefined;
       if (!jsonPath) {
-        agent.errorMessage("Usage: /newsrpm upload --json <path>");
-        return;
+        throw new CommandFailedError("Usage: /newsrpm upload --json <path>");
       }
       const fsService = agent.requireServiceByType(FileSystemService);
       const raw = await fsService.readTextFile(jsonPath, agent);
       if (raw) {
         const article = JSON.parse(raw);
         const res = await nrpm.uploadArticle(article);
-        agent.infoMessage(`Uploaded. id=${res?.id}`);
+        return `Uploaded. id=${res?.id}`;
       } else {
-        agent.errorMessage(`Failed to read file: ${jsonPath}`);
+        throw new CommandFailedError(`Failed to read file: ${jsonPath}`);
       }
     } else {
-      agent.infoMessage("Unknown subcommand.");
-      agent.infoMessage(help);
+      throw new CommandFailedError("Unknown subcommand.");
     }
   } catch (e: any) {
-    agent.errorMessage(`NewsRPM command error: ${e?.message || String(e)}`);
+    throw new CommandFailedError(`NewsRPM command error: ${e?.message || String(e)}`);
   }
 }
-
 
 export default {
   description,
