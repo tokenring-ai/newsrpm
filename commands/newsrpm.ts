@@ -279,6 +279,7 @@ async function execute(remainder: string, agent: Agent): Promise<string> {
 }
 
 export default {
+  name: "newsrpm",
   description,
   execute,
   help,
