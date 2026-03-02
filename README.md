@@ -52,7 +52,6 @@ The NewsRPMService accepts the following configuration schema (validated using Z
 - `baseUrl: string` (default: 'https://api.newsrpm.com')
 - `requestDefaults: { headers?: Record<string,string>, timeoutMs?: number }`
 - `retry: { maxRetries?: number, baseDelayMs?: number, maxDelayMs?: number, jitter?: boolean }`
-- `fetchImpl: any` - Custom fetch implementation for testing
 
 ### Configuration Example
 
@@ -490,6 +489,7 @@ For upload operations, the article object must include:
 - `headline: string` - Article headline
 - `slug: string` - URL slug
 - `date: string` - ISO date string
+- `visibility: string` - Article visibility (draft, embargo, published, retracted)
 - `quality: number` - Quality score
 
 Additional fields are documented in the OpenAPI schema.
@@ -502,7 +502,7 @@ pkg/newsrpm/
 ├── NewsRPMService.ts                 # Core service class
 ├── plugin.ts                         # Plugin registration
 ├── tools.ts                          # Tool exports
-├── chatCommands.ts                   # Chat command exports
+├── commands.ts                       # Command exports
 ├── schema.ts                         # Configuration schema
 ├── commands/
 │   └── newsrpm.ts                    # Chat command implementation
@@ -545,6 +545,7 @@ The package depends on:
 - `@tokenring-ai/agent`: Agent framework
 - `@tokenring-ai/utility`: Utility functions including HttpService
 - `@tokenring-ai/scripting`: Scripting service for global functions
+- `@tokenring-ai/filesystem`: File system service for command file operations
 - `zod`: Runtime type validation
 
 ## Development
@@ -629,8 +630,8 @@ const result = await service.uploadArticle(article);
 - Rate limiting: 429 responses are automatically retried with exponential backoff
 - Timeout: Default timeout is 30 seconds; adjust based on your needs
 - Authentication: Choose appropriate authMode for your deployment (headers preferred for server-side)
-- The article upload schema requires specific fields including provider, headline, slug, date, and quality
-- The package exports both the service and the tools together through the plugin system
+- The article upload schema requires specific fields including provider, headline, slug, date, visibility, and quality
+- The package exports the service through the plugin system; tools and commands are auto-registered
 
 ## License
 
