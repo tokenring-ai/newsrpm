@@ -1,10 +1,15 @@
 # @tokenring-ai/newsrpm
 
-NewsRPM integration package for the TokenRing ecosystem, providing comprehensive news article management, search, and retrieval capabilities. This package offers a NewsRPMService for direct API interactions, 8 ready-to-use tools for the TokenRing tools registry, a `/newsrpm` chat command for interactive use, and 4 scripting functions that integrate with the TokenRing scripting service.
+NewsRPM integration package for the TokenRing ecosystem, providing comprehensive news article management, search, and retrieval capabilities.
 
 ## Overview
 
-NewsRPM is a powerful API for storing, indexing, and retrieving news articles and related metadata. This package wraps common API calls and exposes them as a service, tools, a chat command, and scripting functions so they can be used by TokenRing agents and applications for comprehensive news article workflows.
+NewsRPM is a powerful API for storing, indexing, and retrieving news articles and related metadata. This package wraps common API calls and exposes them as:
+
+- **NewsRPMService**: A TokenRingService for direct API interactions
+- **8 Tools**: Ready-to-use tools for the TokenRing tools registry
+- **`/newsrpm` Chat Command**: Interactive CLI command for quick access
+- **4 Scripting Functions**: Global functions available when scripting service is enabled
 
 ## Key Features
 
@@ -42,16 +47,28 @@ await app.start();
 
 The NewsRPMService accepts the following configuration schema (validated using Zod):
 
-### Required Configuration
+### Configuration Schema
 
-- `apiKey: string` - API key for your NewsRPM instance
+```typescript
+import { NewsRPMConfigSchema } from "@tokenring-ai/newsrpm";
 
-### Optional Configuration
-
-- `authMode: 'privateHeader' | 'publicHeader' | 'privateQuery' | 'publicQuery'` (default: 'privateHeader')
-- `baseUrl: string` (default: 'https://api.newsrpm.com')
-- `requestDefaults: { headers?: Record<string,string>, timeoutMs?: number }`
-- `retry: { maxRetries?: number, baseDelayMs?: number, maxDelayMs?: number, jitter?: boolean }`
+// Schema definition:
+{
+  apiKey: string;                    // Required: API key for your NewsRPM instance
+  authMode?: 'privateHeader' | 'publicHeader' | 'privateQuery' | 'publicQuery';
+  baseUrl?: string;                  // Default: 'https://api.newsrpm.com'
+  requestDefaults?: {
+    headers?: Record<string, string>;
+    timeoutMs?: number;
+  };
+  retry?: {
+    maxRetries?: number;
+    baseDelayMs?: number;
+    maxDelayMs?: number;
+    jitter?: boolean;
+  };
+}
+```
 
 ### Configuration Example
 
@@ -87,7 +104,7 @@ const config = {
 
 ### NewsRPMService
 
-The core service class that handles all API interactions:
+The core service class that handles all API interactions. Implements the `TokenRingService` interface.
 
 ```typescript
 import NewsRPMService from "@tokenring-ai/newsrpm";
@@ -116,72 +133,178 @@ const uploadResult = await service.uploadArticle({
 });
 ```
 
-### Service Methods
+#### Service Methods
 
-#### Search Methods
+##### Search Methods
 
-- **searchIndexedData(body)**: Search indexed data by taxonomy keys
-  ```typescript
-  await service.searchIndexedData({
-    key: "NormalizedTicker",
-    value: "AAPL",
-    count: 25,
-    minDate: "2024-01-01T00:00:00.000Z"
-  });
-  ```
+**`searchIndexedData(body: any): Promise<MultipleArticleResponse>`**
 
-- **searchArticles(body)**: Search articles with various filters
-  ```typescript
-  await service.searchArticles({
-    publisher: ["Reuters", "BBC"],
-    type: "Press Release",
-    sponsored: false,
-    count: 50
-  });
-  ```
+Search indexed data by taxonomy key/value pairs.
 
-#### Article Retrieval Methods
+```typescript
+const result = await service.searchIndexedData({
+  key: "NormalizedTicker",
+  value: "AAPL",
+  count: 25,
+  minDate: "2024-01-01T00:00:00.000Z"
+});
+```
 
-- **getArticleBySlug(slug)**: Retrieve article by URL slug
-  ```typescript
-  const article = await service.getArticleBySlug("tech-earnings-report-2025");
-  ```
+**Parameters:**
+- `key` (required): Index key specifier (e.g., NormalizedTicker, topic, region)
+- `value` (optional): Value to look up in the index (string or array of strings)
+- `count` (optional): Number of articles to return
+- `offset` (optional): How many articles to skip before returning results
+- `minDate` (optional): Earliest date to return (inclusive, ISO 8601)
+- `maxDate` (optional): Latest date to return (inclusive, ISO 8601)
+- `order` (optional): Sort order: "date" or "dateWithQuality"
 
-- **getArticleById(id)**: Retrieve article by numeric ID
-  ```typescript
-  const article = await service.getArticleById(12345);
-  ```
+**`searchArticles(body: any): Promise<MultipleArticleResponse>`**
 
-#### Content Management Methods
+Search articles with various filters.
 
-- **listProviders()**: Get available news providers
-  ```typescript
-  const providers = await service.listProviders();
-  ```
+```typescript
+const result = await service.searchArticles({
+  publisher: ["Reuters", "BBC"],
+  type: "Press Release",
+  sponsored: false,
+  count: 50
+});
+```
 
-- **getBody(bodyId)**: Get article body in native format
-  ```typescript
-  const body = await service.getBody("body-abc123");
-  ```
+**Parameters:**
+- `publisher` (optional): Name(s) of the publisher to search for
+- `provider` (optional): Name(s) of the provider to search for
+- `fullText` (optional): Full text query to execute against the article headline
+- `type` (optional): Type(s) of article to search for
+- `sponsored` (optional): Restrict to sponsored or non-sponsored content
+- `count` (optional): Number of articles to return
+- `offset` (optional): How many articles to skip before returning results
+- `minDate` (optional): Earliest date to return (inclusive, ISO 8601)
+- `maxDate` (optional): Latest date to return (inclusive, ISO 8601)
+- `language` (optional): Filter by article language
 
-- **renderBody(bodyId)**: Get article body rendered as HTML
-  ```typescript
-  const rendered = await service.renderBody("body-abc123");
-  ```
+##### Article Retrieval Methods
 
-#### Article Upload Method
+**`getArticleBySlug(slug: string): Promise<SingleArticleResponse>`**
 
-- **uploadArticle(article)**: Create or update articles
-  ```typescript
-  const result = await service.uploadArticle({
-    provider: "Tech News",
-    headline: "Latest Technology Updates",
-    slug: "tech-updates-2025",
-    date: new Date().toISOString(),
-    quality: 0.95,
-    // ... other required fields per OpenAPI schema
-  });
-  ```
+Retrieve article by URL slug.
+
+```typescript
+const article = await service.getArticleBySlug("tech-earnings-report-2025");
+```
+
+**Parameters:**
+- `slug` (required): The unique slug identifier of the article to retrieve
+
+**`getArticleById(id: number): Promise<SingleArticleResponse>`**
+
+Retrieve article by numeric ID.
+
+```typescript
+const article = await service.getArticleById(12345);
+```
+
+**Parameters:**
+- `id` (required): The local numeric identifier of the article to retrieve
+
+##### Content Management Methods
+
+**`listProviders(): Promise<ProviderListResponse>`**
+
+Get available news providers.
+
+```typescript
+const providers = await service.listProviders();
+```
+
+**`getBody(bodyId: string): Promise<ArticleBodyResponse>`**
+
+Get article body in native format.
+
+```typescript
+const body = await service.getBody("body-abc123");
+```
+
+**Parameters:**
+- `bodyId` (required): Body ID of the article body to retrieve
+
+**`renderBody(bodyId: string): Promise<ArticleBodyResponse>`**
+
+Get article body rendered as HTML.
+
+```typescript
+const rendered = await service.renderBody("body-abc123");
+```
+
+**Parameters:**
+- `bodyId` (required): Body ID of the article body to retrieve (rendered)
+
+##### Article Upload Method
+
+**`uploadArticle(article: any): Promise<{ success: boolean; id: number }>`**
+
+Create or update articles.
+
+```typescript
+const result = await service.uploadArticle({
+  provider: "Tech News",
+  headline: "Latest Technology Updates",
+  slug: "tech-updates-2025",
+  date: new Date().toISOString(),
+  quality: 0.95,
+  visibility: "published"
+});
+```
+
+**Required Parameters:**
+- `provider`: News provider name
+- `headline`: Article headline
+- `slug`: URL slug
+- `date`: ISO date string
+- `quality`: Quality score
+
+**Optional Parameters:**
+- `publisher`: The actual publisher of the article
+- `link`: URL of the article
+- `expires`: Expiration date for the article
+- `summary`: Summary of the article (HTML)
+- `firstParagraph`: First paragraph of the article (HTML)
+- `bodyId`: Unique identifier for article body
+- `language`: Language of the article
+- `visiblity`: Article visibility ("draft", "embargo", "published", "retracted")
+- `metaData`: Provider-specific metadata
+- `normalizedData`: Normalized metadata
+
+**Note:** The API schema uses "visiblity" (typo) — field names are preserved exactly as defined.
+
+## Services
+
+### NewsRPMService
+
+The NewsRPMService implements the `TokenRingService` interface and provides:
+
+- **Name**: "NewsRPMService"
+- **Description**: "Service for interacting with a NewsRPM instance"
+- **Methods**: 8 API methods for article management
+
+#### Service Registration
+
+```typescript
+import { TokenRingApp } from "@tokenring-ai/app";
+import NewsRPMService from "@tokenring-ai/newsrpm";
+
+const app = new TokenRingApp();
+
+// Register the service
+app.addServices(new NewsRPMService({
+  apiKey: process.env.NEWSRPM_API_KEY!
+}));
+
+// Access the service from an agent
+const service = agent.requireServiceByType(NewsRPMService);
+const articles = await service.searchArticles({ fullText: "AI" });
+```
 
 ## Tools Integration
 
@@ -189,71 +312,93 @@ The package provides 8 tools for agent integration, automatically registered wit
 
 ### Available Tools
 
-1. **newsrpm_searchIndexedData** - Search by taxonomy keys
-   ```typescript
-   {
-     key: "topic",
-     value: "artificial intelligence",
-     count: 10
-   }
-   ```
+| Tool Name | Display Name | Description |
+|-----------|--------------|-------------|
+| `newsrpm_searchIndexedData` | Newsrpm/searchIndexedData | Search by taxonomy keys |
+| `newsrpm_searchArticles` | Newsrpm/searchArticles | Search articles with filters |
+| `newsrpm_getArticleBySlug` | Newsrpm/getArticleBySlug | Get article by slug |
+| `newsrpm_getArticleById` | Newsrpm/getArticleById | Get article by ID |
+| `newsrpm_uploadArticle` | Newsrpm/uploadArticle | Upload new or update existing article |
+| `newsrpm_listProviders` | Newsrpm/listProviders | List available news providers |
+| `newsrpm_getBody` | Newsrpm/getBody | Get article body in native format |
+| `newsrpm_renderBody` | Newsrpm/renderBody | Render article body as HTML |
 
-2. **newsrpm_searchArticles** - Search articles with filters
-   ```typescript
-   {
-     publisher: "Reuters",
-     fullText: "AI technology",
-     count: 25
-   }
-   ```
+### Tool Usage Examples
 
-3. **newsrpm_getArticleBySlug** - Get article by slug
-   ```typescript
-   {
-     slug: "example-article-slug"
-   }
-   ```
+#### newsrpm_searchIndexedData
 
-4. **newsrpm_getArticleById** - Get article by ID
-   ```typescript
-   {
-     id: 12345
-   }
-   ```
+```typescript
+{
+  key: "topic",
+  value: "artificial intelligence",
+  count: 10
+}
+```
 
-5. **newsrpm_uploadArticle** - Upload new or update existing article
-   ```typescript
-   {
-     article: {
-       provider: "News Source",
-       headline: "Article Title",
-       slug: "article-slug",
-       date: "2025-01-01T00:00:00.000Z",
-       quality: 0.9
-     }
-   }
-   ```
+#### newsrpm_searchArticles
 
-6. **newsrpm_listProviders** - List available news providers
-   ```typescript
-   {}
-   ```
+```typescript
+{
+  publisher: "Reuters",
+  fullText: "AI technology",
+  count: 25
+}
+```
 
-7. **newsrpm_getBody** - Get article body in native format
-   ```typescript
-   {
-     bodyId: "body-abc123"
-   }
-   ```
+#### newsrpm_getArticleBySlug
 
-8. **newsrpm_renderBody** - Render article body as HTML
-   ```typescript
-   {
-     bodyId: "body-abc123"
-   }
-   ```
+```typescript
+{
+  slug: "example-article-slug"
+}
+```
 
-### Tool Usage Example
+#### newsrpm_getArticleById
+
+```typescript
+{
+  id: 12345
+}
+```
+
+#### newsrpm_uploadArticle
+
+```typescript
+{
+  article: {
+    provider: "News Source",
+    headline: "Article Title",
+    slug: "article-slug",
+    date: "2025-01-01T00:00:00.000Z",
+    quality: 0.9,
+    visibility: "published"
+  }
+}
+```
+
+#### newsrpm_listProviders
+
+```typescript
+{}
+```
+
+#### newsrpm_getBody
+
+```typescript
+{
+  bodyId: "body-abc123"
+}
+```
+
+#### newsrpm_renderBody
+
+```typescript
+{
+  bodyId: "body-abc123"
+}
+```
+
+### Tool Usage in Agents
 
 ```typescript
 // In an agent context
@@ -277,9 +422,12 @@ The package provides a comprehensive `/newsrpm` command for interactive use in t
 ### Available Subcommands
 
 #### Search Indexed Data
+
 ```bash
 /newsrpm index <key> [options]
 ```
+
+**Options:**
 - `--value <values>`: Filter by value(s), comma-separated for multiple
 - `--count <n>`: Limit number of results
 - `--offset <n>`: Skip number of results
@@ -294,9 +442,12 @@ The package provides a comprehensive `/newsrpm` command for interactive use in t
 ```
 
 #### Search Articles
+
 ```bash
 /newsrpm search [options]
 ```
+
+**Options:**
 - `--publisher <names>`: Filter by publisher(s), comma-separated
 - `--provider <names>`: Filter by provider(s), comma-separated
 - `--type <types>`: Filter by type(s), comma-separated
@@ -315,6 +466,7 @@ The package provides a comprehensive `/newsrpm` command for interactive use in t
 ```
 
 #### Get Article
+
 ```bash
 # By slug
 /newsrpm article slug <slug>
@@ -329,9 +481,12 @@ The package provides a comprehensive `/newsrpm` command for interactive use in t
 ```
 
 #### List Providers
+
 ```bash
 /newsrpm providers [options]
 ```
+
+**Options:**
 - `--save <path>`: Save response to JSON file
 
 **Example:**
@@ -340,9 +495,12 @@ The package provides a comprehensive `/newsrpm` command for interactive use in t
 ```
 
 #### Get Article Body
+
 ```bash
 /newsrpm body <bodyId> [options]
 ```
+
+**Options:**
 - `--render`: Render the body content
 - `--save <path>`: Save response to JSON file
 
@@ -352,9 +510,12 @@ The package provides a comprehensive `/newsrpm` command for interactive use in t
 ```
 
 #### Upload Article
+
 ```bash
 /newsrpm upload --json <path>
 ```
+
+**Options:**
 - `--json <path>`: Path to JSON file containing article data
 
 **Example:**
@@ -368,22 +529,34 @@ When `@tokenring-ai/scripting` is available, the package registers 4 global func
 
 ### Available Functions
 
-1. **searchArticles(query)**: Search articles using full-text query
+1. **`searchArticles(query: string): string`**
+   - Search articles using full-text query
+   - Returns: JSON string of article rows
+
    ```javascript
    const articles = searchArticles("artificial intelligence");
    ```
 
-2. **searchIndexedData(key, value)**: Search indexed data by taxonomy keys
+2. **`searchIndexedData(key: string, value: string): string`**
+   - Search indexed data by taxonomy keys
+   - Returns: JSON string of article rows
+
    ```javascript
    const results = searchIndexedData("NormalizedTicker", "AAPL");
    ```
 
-3. **getArticleBySlug(slug)**: Retrieve article by slug
+3. **`getArticleBySlug(slug: string): string`**
+   - Retrieve article by slug
+   - Returns: JSON string of article document
+
    ```javascript
    const article = getArticleBySlug("my-article-slug");
    ```
 
-4. **listProviders()**: List available news providers
+4. **`listProviders(): string`**
+   - List available news providers
+   - Returns: JSON string of provider list
+
    ```javascript
    const providers = listProviders();
    ```
@@ -404,53 +577,77 @@ const summary = llm("Analyze sentiment: " + news);
 
 The package supports 4 authentication modes:
 
-1. **privateHeader** (default): `Authorization: privateKey <apiKey>`
-2. **publicHeader**: `Authorization: publicKey <apiKey>`
-3. **privateQuery**: Query parameter `T=<apiKey>`
-4. **publicQuery**: Query parameter `P=<apiKey>`
+| Mode | Method | Description |
+|------|--------|-------------|
+| `privateHeader` (default) | `Authorization: privateKey <apiKey>` | Server-side authentication via header |
+| `publicHeader` | `Authorization: publicKey <apiKey>` | Browser/CORS authentication via header |
+| `privateQuery` | Query parameter `T=<apiKey>` | Server-side via query (not recommended for web) |
+| `publicQuery` | Query parameter `P=<apiKey>` | Browser/CORS via query parameter |
 
 Choose the mode that matches your NewsRPM deployment security requirements.
 
 ## Response Types
 
 ### MultipleArticleResponse
+
 ```typescript
 {
   success: boolean;
   rows: Array<{
     headline?: string;
     provider?: string;
+    publisher?: string;
     slug?: string;
-    // ... other article fields
-  }>
+    link?: string;
+    date?: string;
+    expires?: string;
+    summary?: string;
+    firstParagraph?: string;
+    bodyId?: string;
+    language?: string;
+    visiblity?: "draft" | "embargo" | "published" | "retracted";
+    quality?: number;
+    metaData?: object;
+    normalizedData?: object;
+  }>;
 }
 ```
 
 ### SingleArticleResponse
+
 ```typescript
 {
   success: boolean;
   doc: {
-    // Full article object
-  }
+    // Full article object matching MultipleArticleResponse rows
+  };
 }
 ```
 
 ### ProviderListResponse
+
 ```typescript
 {
   success: boolean;
   rows: Array<{
     provider: string;
-  }>
+  }>;
 }
 ```
 
 ### ArticleBodyResponse
+
 ```typescript
 {
   success: boolean;
-  body: { v: number; chunks: Array<{ name: string; format: string; content: string }> }
+  body: {
+    v: number;
+    chunks: Array<{
+      name: string;
+      format: string;  // MIME type (e.g., "text/html")
+      content: string;
+    }>;
+  };
 }
 ```
 
@@ -464,6 +661,7 @@ The service implements comprehensive error handling:
 - **Timeout Handling**: Requests timeout according to configured timeoutMs
 
 ### Error Response Format
+
 ```typescript
 {
   message: string;
@@ -471,6 +669,23 @@ The service implements comprehensive error handling:
   code?: string;
   details?: any;
   hint?: string;
+}
+```
+
+### Error Handling Example
+
+```typescript
+try {
+  const result = await service.searchArticles({ fullText: "test" });
+} catch (error: any) {
+  console.error(`Error: ${error.message}`);
+  if (error.status === 400) {
+    console.error("Invalid request parameters");
+  } else if (error.status === 401) {
+    console.error("Invalid API key");
+  } else if (error.status === 429) {
+    console.error("Rate limit exceeded");
+  }
 }
 ```
 
@@ -485,14 +700,27 @@ The complete API schema is available in:
 ### Upload Article Schema
 
 For upload operations, the article object must include:
-- `provider: string` - News provider name
-- `headline: string` - Article headline
-- `slug: string` - URL slug
-- `date: string` - ISO date string
-- `visibility: string` - Article visibility (draft, embargo, published, retracted)
-- `quality: number` - Quality score
 
-Additional fields are documented in the OpenAPI schema.
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `provider` | string | Yes | News provider name |
+| `headline` | string | Yes | Article headline |
+| `slug` | string | Yes | URL slug |
+| `date` | string (ISO) | Yes | Article timestamp |
+| `visibility` | string | Yes | "draft", "embargo", "published", or "retracted" |
+| `quality` | number | Yes | Quality score |
+
+Additional optional fields:
+- `publisher`: The actual publisher of the article
+- `link`: URL of the article
+- `expires`: Expiration date
+- `summary`: Summary in HTML format
+- `firstParagraph`: First paragraph in HTML format
+- `bodyId`: Unique identifier for article body
+- `language`: Article language
+- `visiblity`: Article visibility (note: typo preserved from API)
+- `metaData`: Provider-specific metadata object
+- `normalizedData`: Normalized metadata object
 
 ## Package Structure
 
@@ -505,7 +733,15 @@ pkg/newsrpm/
 ├── commands.ts                       # Command exports
 ├── schema.ts                         # Configuration schema
 ├── commands/
-│   └── newsrpm.ts                    # Chat command implementation
+│   ├── newsrpm.ts                    # /newsrpm command index
+│   └── newsrpm/
+│       ├── index.ts                  # /newsrpm index
+│       ├── search.ts                 # /newsrpm search
+│       ├── article.ts                # /newsrpm article
+│       ├── providers.ts              # /newsrpm providers
+│       ├── body.ts                   # /newsrpm body
+│       ├── upload.ts                 # /newsrpm upload
+│       └── _utils.ts                 # shared parseFlags/saveIfRequested
 ├── tools/
 │   ├── searchIndexedData.ts
 │   ├── searchArticles.ts
@@ -551,11 +787,13 @@ The package depends on:
 ## Development
 
 ### Building
+
 ```bash
 bun run build
 ```
 
 ### Testing
+
 ```bash
 bun run test
 bun run test:watch
@@ -563,6 +801,7 @@ bun run test:coverage
 ```
 
 ### Development Commands
+
 ```bash
 bun run dev          # Watch mode compilation
 bun run clean        # Clean build directory
@@ -571,6 +810,7 @@ bun run clean        # Clean build directory
 ## Integration Examples
 
 ### Basic Integration
+
 ```typescript
 import { NewsRPMService } from "@tokenring-ai/newsrpm";
 
@@ -587,6 +827,7 @@ const techNews = await service.searchArticles({
 ```
 
 ### Advanced Integration with Agents
+
 ```typescript
 // Tools are automatically available to agents
 const agent = new Agent();
@@ -598,6 +839,7 @@ const articles = await agent.callTool("newsrpm_searchArticles", {
 ```
 
 ### File System Integration
+
 ```typescript
 // Upload article from JSON file
 const fsService = agent.requireServiceByType(FileSystemService);
@@ -607,6 +849,7 @@ const result = await service.uploadArticle(article);
 ```
 
 ### Using Chat Command
+
 ```typescript
 // When the app is running, access NewsRPM via:
 /newsrpm search --fulltext "AI" --count 10
