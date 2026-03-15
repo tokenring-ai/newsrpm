@@ -13,8 +13,8 @@
     "@tokenring-ai/filesystem": "0.2.0"
   },
   "devDependencies": {
-    "vitest": "^4.0.18",
-    "@vitest/coverage-v8": "^4.0.18",
+    "vitest": "^4.1.0",
+    "@vitest/coverage-v8": "^4.1.0",
     "typescript": "^5.9.3"
   },
   "exports": {

@@ -8,7 +8,7 @@ NewsRPM is a powerful API for storing, indexing, and retrieving news articles an
 
 - **NewsRPMService**: A TokenRingService for direct API interactions
 - **8 Tools**: Ready-to-use tools for the TokenRing tools registry
-- **`/newsrpm` Chat Command**: Interactive CLI command for quick access
+- **`/newsrpm` Chat Command**: Interactive CLI command with 6 subcommands for quick access
 - **4 Scripting Functions**: Global functions available when scripting service is enabled
 
 ## Key Features
@@ -22,7 +22,7 @@ NewsRPM is a powerful API for storing, indexing, and retrieving news articles an
 - **Robust Error Handling**: Built-in retry logic, timeout handling, and comprehensive error responses
 - **Plugin Integration**: Seamless integration with TokenRing's plugin architecture
 - **Scripting Functions**: 4 global functions available when scripting service is enabled
-- **Chat Command**: Interactive CLI command for quick access to all features
+- **Chat Command**: Interactive CLI command with 6 subcommands for quick access to all features
 
 ## Installation
 
@@ -411,7 +411,7 @@ const results = await agent.callTool("newsrpm_searchArticles", {
 
 ## Chat Commands
 
-The package provides a comprehensive `/newsrpm` command for interactive use in the TokenRing REPL.
+The package provides a comprehensive `/newsrpm` command for interactive use in the TokenRing REPL with 6 subcommands.
 
 ### Command Syntax
 
@@ -733,7 +733,6 @@ pkg/newsrpm/
 ├── commands.ts                       # Command exports
 ├── schema.ts                         # Configuration schema
 ├── commands/
-│   ├── newsrpm.ts                    # /newsrpm command index
 │   └── newsrpm/
 │       ├── index.ts                  # /newsrpm index
 │       ├── search.ts                 # /newsrpm search
@@ -741,16 +740,16 @@ pkg/newsrpm/
 │       ├── providers.ts              # /newsrpm providers
 │       ├── body.ts                   # /newsrpm body
 │       ├── upload.ts                 # /newsrpm upload
-│       └── _utils.ts                 # shared parseFlags/saveIfRequested
+│       └── _utils.ts                 # Shared parseFlags/saveIfRequested
 ├── tools/
-│   ├── searchIndexedData.ts
-│   ├── searchArticles.ts
-│   ├── getArticleBySlug.ts
 │   ├── getArticleById.ts
-│   ├── uploadArticle.ts
-│   ├── listProviders.ts
+│   ├── getArticleBySlug.ts
 │   ├── getBody.ts
-│   └── renderBody.ts
+│   ├── listProviders.ts
+│   ├── renderBody.ts
+│   ├── searchArticles.ts
+│   ├── searchIndexedData.ts
+│   └── uploadArticle.ts
 ├── design/
 │   ├── newsrpm.openapi.json         # OpenAPI specification
 │   ├── newsrpm_api.txt              # Text summary
