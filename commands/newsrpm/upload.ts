@@ -1,13 +1,13 @@
 import Agent from "@tokenring-ai/agent/Agent";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
+import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {FileSystemService} from "@tokenring-ai/filesystem";
 import NewsRPMService from "../../NewsRPMService.ts";
 import {parseFlags} from "./_utils.ts";
 
 export default {
   name: "newsrpm upload",
-  description: "/newsrpm upload --json <path> - Upload article from JSON file",
+  description: "Upload article from JSON file",
   help: `# /newsrpm upload\n\nUpload article from JSON file.\n\n## Example\n\n/newsrpm upload --json article.json`,
   execute: async (remainder: string, agent: Agent): Promise<string> => {
     const {flags} = parseFlags(remainder.trim().split(/\s+/).filter(Boolean));

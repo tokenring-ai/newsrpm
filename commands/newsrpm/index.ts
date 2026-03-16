@@ -1,12 +1,12 @@
 import Agent from "@tokenring-ai/agent/Agent";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
+import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import NewsRPMService from "../../NewsRPMService.ts";
 import {parseFlags, saveIfRequested} from "./_utils.ts";
 
 export default {
   name: "newsrpm index",
-  description: "/newsrpm index <key> [options] - Search indexed data by key",
+  description: "Search indexed data by key",
   help: `# /newsrpm index\n\nSearch indexed data by key.\n\n**Options:** --value, --count, --offset, --min, --max, --order, --save\n\n## Example\n\n/newsrpm index publisher --value "Reuters,BBC" --count 20`,
   execute: async (remainder: string, agent: Agent): Promise<string> => {
     const {flags, rest} = parseFlags(remainder.trim().split(/\s+/));

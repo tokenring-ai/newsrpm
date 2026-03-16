@@ -1,12 +1,12 @@
 import Agent from "@tokenring-ai/agent/Agent";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
+import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import NewsRPMService from "../../NewsRPMService.ts";
 import {parseFlags, saveIfRequested} from "./_utils.ts";
 
 export default {
   name: "newsrpm article",
-  description: "/newsrpm article slug <slug> | id <id> - Get article by slug or ID",
+  description: "Get article by slug or ID",
   help: `# /newsrpm article\n\nGet article by slug or ID.\n\n## Examples\n\n/newsrpm article slug "my-article-slug"\n/newsrpm article id 12345`,
   execute: async (remainder: string, agent: Agent): Promise<string> => {
     const {flags, rest} = parseFlags(remainder.trim().split(/\s+/));

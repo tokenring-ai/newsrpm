@@ -5,7 +5,7 @@ import {parseFlags, saveIfRequested} from "./_utils.ts";
 
 export default {
   name: "newsrpm providers",
-  description: "/newsrpm providers - List available news providers",
+  description: "List available news providers",
   help: `# /newsrpm providers\n\nList available news providers.\n\n## Example\n\n/newsrpm providers --save providers.json`,
   execute: async (remainder: string, agent: Agent): Promise<string> => {
     const {flags} = parseFlags(remainder.trim().split(/\s+/).filter(Boolean));

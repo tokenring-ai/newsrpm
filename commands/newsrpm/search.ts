@@ -6,7 +6,7 @@ import {parseFlags, saveIfRequested} from "./_utils.ts";
 
 export default {
   name: "newsrpm search",
-  description: "/newsrpm search [options] - Search articles with filters",
+  description: "Search articles with filters",
   help: `# /newsrpm search\n\nSearch articles with filters.\n\n**Options:** --publisher, --provider, --type, --fulltext, --sponsored, --language, --count, --offset, --min, --max, --save\n\n## Example\n\n/newsrpm search --fulltext "AI" --count 10 --publisher "Reuters"`,
   execute: async (remainder: string, agent: Agent): Promise<string> => {
     const {flags} = parseFlags(remainder.trim().split(/\s+/).filter(Boolean));
