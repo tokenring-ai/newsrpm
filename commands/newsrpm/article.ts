@@ -1,29 +1,64 @@
-import Agent from "@tokenring-ai/agent/Agent";
 import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import {formatAgentCommandUsageError} from "@tokenring-ai/agent/util/formatAgentCommandUsage";
 import NewsRPMService from "../../NewsRPMService.ts";
-import {parseFlags, saveIfRequested} from "./_utils.ts";
+import {saveIfRequested} from "./_utils.ts";
 
-export default {
+const inputSchema = {
+  args: {
+    "--slug": {
+      type: "string",
+      description: "Article slug to retrieve",
+    },
+    "--id": {
+      type: "number",
+      description: "Article ID to retrieve",
+    },
+    "--save": {
+      type: "string",
+      description: "Write the raw JSON response to a file",
+    },
+  },
+  allowAttachments: false,
+} as const satisfies AgentCommandInputSchema;
+
+const command = {
   name: "newsrpm article",
   description: "Get article by slug or ID",
-  help: `# /newsrpm article\n\nGet article by slug or ID.\n\n## Examples\n\n/newsrpm article slug "my-article-slug"\n/newsrpm article id 12345`,
-  execute: async (remainder: string, agent: Agent): Promise<string> => {
-    const {flags, rest} = parseFlags(remainder.trim().split(/\s+/));
-    const [which, value] = rest;
+  help: `Get article by slug or ID.
+
+## Examples
+
+/newsrpm article --slug "my-article-slug"
+/newsrpm article --id 12345`,
+  inputSchema,
+  execute: async ({args, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> => {
     const nrpm = agent.requireServiceByType(NewsRPMService);
-    if (which === 'slug') {
-      if (!value) throw new CommandFailedError("Usage: /newsrpm article slug <slug>");
-      const res = await nrpm.getArticleBySlug(value);
-      const saved = await saveIfRequested(res, flags, agent);
-      return (res?.doc?.headline ?? "(no headline)") + (saved ? "\n" + saved : "");
-    } else if (which === 'id') {
-      const id = Number(value);
-      if (!id) throw new CommandFailedError("Usage: /newsrpm article id <id>");
-      const res = await nrpm.getArticleById(id);
-      const saved = await saveIfRequested(res, flags, agent);
+    const slug = args["--slug"];
+    const id = args["--id"];
+
+    if ((slug && id !== undefined) || (!slug && id === undefined)) {
+      throw new CommandFailedError(
+        formatAgentCommandUsageError(command, "Provide exactly one of --slug or --id."),
+      );
+    }
+
+    if (slug) {
+      const res = await nrpm.getArticleBySlug(slug);
+      const saved = await saveIfRequested(res, args, agent);
       return (res?.doc?.headline ?? "(no headline)") + (saved ? "\n" + saved : "");
     }
-    throw new CommandFailedError("Usage: /newsrpm article slug <slug> | id <id>");
+
+    if (!id) {
+      throw new CommandFailedError(
+        formatAgentCommandUsageError(command, "Argument --id must be a non-zero article ID."),
+      );
+    }
+
+    const res = await nrpm.getArticleById(id);
+    const saved = await saveIfRequested(res, args, agent);
+    return (res?.doc?.headline ?? "(no headline)") + (saved ? "\n" + saved : "");
   },
-} satisfies TokenRingAgentCommand;
+} satisfies TokenRingAgentCommand<typeof inputSchema>;
+
+export default command;

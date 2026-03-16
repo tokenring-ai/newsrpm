@@ -1,20 +1,42 @@
-import Agent from "@tokenring-ai/agent/Agent";
+import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import NewsRPMService from "../../NewsRPMService.ts";
-import {parseFlags, saveIfRequested} from "./_utils.ts";
+import {saveIfRequested} from "./_utils.ts";
+
+const inputSchema = {
+  args: {
+    "--render": {
+      type: "flag",
+      description: "Render the body content instead of returning the raw body record",
+    },
+    "--save": {
+      type: "string",
+      description: "Write the raw JSON response to a file",
+    },
+  },
+  positionals: [{
+    name: "bodyId",
+    description: "Body ID to retrieve",
+    required: true,
+  }],
+  allowAttachments: false,
+} as const satisfies AgentCommandInputSchema;
 
 export default {
   name: "newsrpm body",
   description: "Get article body content",
-  help: `# /newsrpm body\n\nGet article body content.\n\n**Options:** --render, --save\n\n## Example\n\n/newsrpm body abc123 --render`,
-  execute: async (remainder: string, agent: Agent): Promise<string> => {
-    const {flags, rest} = parseFlags(remainder.trim().split(/\s+/));
-    const [bodyId] = rest;
-    if (!bodyId) throw new CommandFailedError("Usage: /newsrpm body <bodyId> [--render]");
+  help: `Get article body content.
+
+## Example
+
+/newsrpm body abc123
+/newsrpm body --render abc123`,
+  inputSchema,
+  execute: async ({positionals, args, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> => {
+    if (!positionals.bodyId) throw new CommandFailedError("Usage: /newsrpm body <bodyId> [--render]");
     const nrpm = agent.requireServiceByType(NewsRPMService);
-    const res = flags.render ? await nrpm.renderBody(bodyId) : await nrpm.getBody(bodyId);
-    const saved = await saveIfRequested(res, flags, agent);
+    const res = args["--render"] ? await nrpm.renderBody(positionals.bodyId) : await nrpm.getBody(positionals.bodyId);
+    const saved = await saveIfRequested(res, args, agent);
     return `Body chunks: ${res?.body?.chunks?.length ?? 0}` + (saved ? "\n" + saved : "");
   },
-} satisfies TokenRingAgentCommand;
+} satisfies TokenRingAgentCommand<typeof inputSchema>;

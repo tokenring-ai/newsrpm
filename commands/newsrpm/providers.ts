@@ -1,18 +1,31 @@
-import Agent from "@tokenring-ai/agent/Agent";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import NewsRPMService from "../../NewsRPMService.ts";
-import {parseFlags, saveIfRequested} from "./_utils.ts";
+import {saveIfRequested} from "./_utils.ts";
+
+const inputSchema = {
+  args: {
+    "--save": {
+      type: "string",
+      description: "Write the raw JSON response to a file",
+    },
+  },
+  allowAttachments: false,
+} as const satisfies AgentCommandInputSchema;
 
 export default {
   name: "newsrpm providers",
   description: "List available news providers",
-  help: `# /newsrpm providers\n\nList available news providers.\n\n## Example\n\n/newsrpm providers --save providers.json`,
-  execute: async (remainder: string, agent: Agent): Promise<string> => {
-    const {flags} = parseFlags(remainder.trim().split(/\s+/).filter(Boolean));
+  help: `List available news providers.
+
+## Example
+
+/newsrpm providers --save providers.json`,
+  inputSchema,
+  execute: async ({args, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> => {
     const res = await agent.requireServiceByType(NewsRPMService).listProviders();
     const providers = Array.isArray(res?.rows) ? res.rows.map((r: any) => r.provider).filter(Boolean) : [];
     const lines = providers.length ? ["Providers:", ...providers.map((p: string) => `- ${p}`)] : ["No providers returned."];
-    const saved = await saveIfRequested(res, flags, agent);
+    const saved = await saveIfRequested(res, args, agent);
     return lines.join("\n") + (saved ? "\n" + saved : "");
   },
-} satisfies TokenRingAgentCommand;
+} satisfies TokenRingAgentCommand<typeof inputSchema>;

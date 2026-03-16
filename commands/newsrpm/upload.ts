@@ -1,21 +1,32 @@
-import Agent from "@tokenring-ai/agent/Agent";
-import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {FileSystemService} from "@tokenring-ai/filesystem";
 import NewsRPMService from "../../NewsRPMService.ts";
-import {parseFlags} from "./_utils.ts";
+
+const inputSchema = {
+  args: {
+    "--json": {
+      type: "string",
+      description: "Path to the article JSON file to upload",
+      required: true,
+    },
+  },
+  allowAttachments: false,
+} as const satisfies AgentCommandInputSchema;
 
 export default {
   name: "newsrpm upload",
   description: "Upload article from JSON file",
-  help: `# /newsrpm upload\n\nUpload article from JSON file.\n\n## Example\n\n/newsrpm upload --json article.json`,
-  execute: async (remainder: string, agent: Agent): Promise<string> => {
-    const {flags} = parseFlags(remainder.trim().split(/\s+/).filter(Boolean));
-    const jsonPath = flags.json as string | undefined;
-    if (!jsonPath) throw new CommandFailedError("Usage: /newsrpm upload --json <path>");
+  help: `Upload article from JSON file.
+
+## Example
+
+/newsrpm upload --json article.json`,
+  inputSchema,
+  execute: async ({args, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> => {
+    const jsonPath = args["--json"];
     const raw = await agent.requireServiceByType(FileSystemService).readTextFile(jsonPath, agent);
-    if (!raw) throw new CommandFailedError(`Failed to read file: ${jsonPath}`);
+    if (!raw) throw new Error(`Failed to read file: ${jsonPath}`);
     const res = await agent.requireServiceByType(NewsRPMService).uploadArticle(JSON.parse(raw));
     return `Uploaded. id=${res?.id}`;
   },
-} satisfies TokenRingAgentCommand;
+} satisfies TokenRingAgentCommand<typeof inputSchema>;
