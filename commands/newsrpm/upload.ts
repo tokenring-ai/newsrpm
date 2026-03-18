@@ -9,8 +9,7 @@ const inputSchema = {
       description: "Path to the article JSON file to upload",
       required: true,
     },
-  },
-  allowAttachments: false,
+  }
 } as const satisfies AgentCommandInputSchema;
 
 export default {

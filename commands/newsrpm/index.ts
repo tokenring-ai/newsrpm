@@ -37,8 +37,7 @@ const inputSchema = {
     name: "key",
     description: "Indexed field key to search",
     required: true,
-  }],
-  allowAttachments: false,
+  }]
 } as const satisfies AgentCommandInputSchema;
 
 export default {

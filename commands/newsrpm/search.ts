@@ -49,8 +49,7 @@ const inputSchema = {
       type: "string",
       description: "Write the raw JSON response to a file",
     },
-  },
-  allowAttachments: false,
+  }
 } as const satisfies AgentCommandInputSchema;
 
 export default {
