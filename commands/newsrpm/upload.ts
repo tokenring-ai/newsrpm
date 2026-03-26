@@ -25,7 +25,13 @@ export default {
     const jsonPath = args["--json"];
     const raw = await agent.requireServiceByType(FileSystemService).readTextFile(jsonPath, agent);
     if (!raw) throw new Error(`Failed to read file: ${jsonPath}`);
-    const res = await agent.requireServiceByType(NewsRPMService).uploadArticle(JSON.parse(raw));
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (error) {
+      throw new Error(`Invalid JSON in file ${jsonPath}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    const res = await agent.requireServiceByType(NewsRPMService).uploadArticle(parsed);
     return `Uploaded. id=${res?.id}`;
   },
 } satisfies TokenRingAgentCommand<typeof inputSchema>;

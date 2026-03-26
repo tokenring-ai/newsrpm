@@ -20,7 +20,7 @@ export default class NewsRPMService extends HttpService implements TokenRingServ
   constructor(private config: ParsedNewsRPMConfig) {
     super();
     if (!config?.apiKey) throw new Error("NewsRPMService requires apiKey");
-    this.baseUrl = config.baseUrl
+    this.baseUrl = config.baseUrl;
     this.defaultHeaders = this.buildHeaders();
   }
 
