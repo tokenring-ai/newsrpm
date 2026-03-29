@@ -1,15 +1,22 @@
 import {TokenRingPlugin} from "@tokenring-ai/app";
 import {ChatService} from "@tokenring-ai/chat";
+import {RpcService} from "@tokenring-ai/rpc";
 import {ScriptingService} from "@tokenring-ai/scripting";
 import {ScriptingThis} from "@tokenring-ai/scripting/ScriptingService";
 import {z} from "zod";
 import NewsRPMService from "./NewsRPMService.ts";
 import packageJSON from "./package.json";
+import newsrpmRPC from "./rpc/newsrpm.ts";
 import {NewsRPMConfigSchema} from "./schema.ts";
 import tools from "./tools.ts";
 
 const packageConfigSchema = z.object({
-  newsrpm: NewsRPMConfigSchema.optional()
+  newsrpm: NewsRPMConfigSchema.nullable().prefault(() => {
+    if (process.env.NEWSRPM_API_KEY) {
+      return {apiKey: process.env.NEWSRPM_API_KEY, authMode: 'privateHeader'};
+    }
+    return null;
+  })
 });
 
 export default {
@@ -61,6 +68,9 @@ export default {
     app.waitForService(ChatService, chatService =>
       chatService.addTools(tools)
     );
+    app.waitForService(RpcService, rpcService => {
+      rpcService.registerEndpoint(newsrpmRPC);
+    });
     if (config.newsrpm) {
       app.addServices(new NewsRPMService(config.newsrpm));
     }

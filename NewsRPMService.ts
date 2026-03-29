@@ -85,11 +85,6 @@ export default class NewsRPMService extends HttpService implements TokenRingServ
   private buildPath(pathname: string, query?: Record<string, string | number | boolean | undefined>): string {
     const url = new URL(pathname.startsWith('/') ? pathname : '/' + pathname, 'http://dummy.com');
 
-    // auth via query
-    const mode = this.config.authMode ?? 'privateHeader';
-    if (mode === 'privateQuery') url.searchParams.set('T', this.config.apiKey);
-    if (mode === 'publicQuery') url.searchParams.set('P', this.config.apiKey);
-
     if (query) {
       for (const [k, v] of Object.entries(query)) {
         if (v === undefined || v === null || v === "") continue;
@@ -100,15 +95,11 @@ export default class NewsRPMService extends HttpService implements TokenRingServ
   }
 
   private buildHeaders(extra?: Record<string, string>): Record<string, string> {
-    const headers: Record<string, string> = {
+    return {
       'Content-Type': 'application/json',
       ...(this.config.requestDefaults?.headers || {}),
       ...(extra || {}),
+      'Authorization': `privateKey ${this.config.apiKey}`
     };
-    // auth via header
-    const mode = this.config.authMode ?? 'privateHeader';
-    if (mode === 'privateHeader') headers['Authorization'] = `privateKey ${this.config.apiKey}`;
-    if (mode === 'publicHeader') headers['Authorization'] = `publicKey ${this.config.apiKey}`;
-    return headers;
   }
 }
