@@ -57,12 +57,12 @@ export default {
 
     const res = await agent.requireServiceByType(NewsRPMService).searchIndexedData({
       key: positionals.key,
-      value,
+      value: value ?? "",
       count: args["--count"],
       offset: args["--offset"],
-      minDate: args["--min"],
-      maxDate: args["--max"],
-      order: args["--order"],
+      minDate: args["--min"] ? Date.parse(args["--min"]) : undefined,
+      maxDate: args["--max"] ? Date.parse(args["--max"]) : undefined,
+      order: args["--order"] as "date" | "dateWithQuality" | undefined,
     });
     const top = Array.isArray(res?.rows) ? res.rows.slice(0, 5) : [];
     const lines = top.length

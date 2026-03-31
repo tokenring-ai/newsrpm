@@ -1,14 +1,15 @@
 import {TokenRingService} from "@tokenring-ai/app/types";
 import {HttpService} from "@tokenring-ai/utility/http/HttpService";
-import type {ParsedNewsRPMConfig} from "./schema.ts";
-
-export type MultipleArticleResponse = { success: boolean; rows: any[] };
-export type SingleArticleResponse = { success: boolean; doc: any };
-export type ProviderListResponse = { success: boolean; rows: Array<{ provider: string }> };
-export type ArticleBodyResponse = {
-  success: boolean;
-  body: { v: number; chunks: Array<{ name: string; format: string; content: string }> }
-};
+import z from "zod";
+import {
+  type ArticleBodyResponse,
+  ArticleSearchSchema,
+  IndexedDataSearchSchema,
+  type MultipleArticleResponse,
+  type ParsedNewsRPMConfig,
+  type ProviderListResponse,
+  type SingleArticleResponse
+} from "./schema.ts";
 
 export default class NewsRPMService extends HttpService implements TokenRingService {
   readonly name = "NewsRPMService";
@@ -19,12 +20,11 @@ export default class NewsRPMService extends HttpService implements TokenRingServ
 
   constructor(private config: ParsedNewsRPMConfig) {
     super();
-    if (!config?.apiKey) throw new Error("NewsRPMService requires apiKey");
     this.baseUrl = config.baseUrl;
     this.defaultHeaders = this.buildHeaders();
   }
 
-  async searchIndexedData(body: any): Promise<MultipleArticleResponse> {
+  async searchIndexedData(body: z.input<typeof IndexedDataSearchSchema>): Promise<MultipleArticleResponse> {
     if (!body?.key) throw Object.assign(new Error('key is required'), {status: 400});
     const path = this.buildPath('/search/indexedData');
     return this.fetchJson(path, {
@@ -33,7 +33,7 @@ export default class NewsRPMService extends HttpService implements TokenRingServ
     }, 'searchIndexedData');
   }
 
-  async searchArticles(body: any): Promise<MultipleArticleResponse> {
+  async searchArticles(body: z.input<typeof ArticleSearchSchema>): Promise<MultipleArticleResponse> {
     const path = this.buildPath('/search/article');
     return this.fetchJson(path, {
       method: 'POST',

@@ -13,7 +13,17 @@ async function execute(args: z.output<typeof inputSchema>, agent: Agent): Promis
   if (!args.key) {
     throw new Error(`[${name}] Key is required`);
   }
-  const result = await service.searchIndexedData(args);
+  // Convert string dates to Unix timestamps for the API
+  const payload = {
+    key: args.key,
+    value: args.value ?? "",
+    count: args.count,
+    offset: args.offset,
+    minDate: args.minDate ? Date.parse(args.minDate) : undefined,
+    maxDate: args.maxDate ? Date.parse(args.maxDate) : undefined,
+    order: args.order,
+  };
+  const result = await service.searchIndexedData(payload);
   return {
     type: "json",
     data: result
