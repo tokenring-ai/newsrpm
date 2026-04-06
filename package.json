@@ -1,7 +1,7 @@
 {
   "name": "@tokenring-ai/newsrpm",
   "version": "0.2.0",
-  "description": "NewsRPM integration for Token Ring (search, retrieve, upload articles)",
+  "description": "Specialized tools for aggregating, retrieving, and uploading news articles.",
   "dependencies": {
     "@tokenring-ai/app": "0.2.0",
     "@tokenring-ai/chat": "0.2.0",

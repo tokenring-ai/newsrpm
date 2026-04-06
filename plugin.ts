@@ -21,6 +21,7 @@ const packageConfigSchema = z.object({
 
 export default {
   name: packageJSON.name,
+  displayName: "NewsRPM Integration",
   version: packageJSON.version,
   description: packageJSON.description,
   install(app, config) {
