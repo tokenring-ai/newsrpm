@@ -1,4 +1,4 @@
-import Agent from "@tokenring-ai/agent/Agent";
+import type Agent from "@tokenring-ai/agent/Agent";
 import {FileSystemService} from "@tokenring-ai/filesystem";
 
 export type SaveableAgentCommandArgs = {
@@ -12,7 +12,9 @@ export async function saveIfRequested(
 ): Promise<string> {
   if (args["--save"]) {
     const path = args["--save"];
-    await agent.requireServiceByType(FileSystemService).writeFile(path, JSON.stringify(data, null, 2), agent);
+    await agent
+      .requireServiceByType(FileSystemService)
+      .writeFile(path, JSON.stringify(data, null, 2), agent);
     return `Saved raw JSON to ${path}`;
   }
   return "";

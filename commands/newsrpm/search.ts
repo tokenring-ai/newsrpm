@@ -1,4 +1,4 @@
-import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand,} from "@tokenring-ai/agent/types";
 import markdownList from "@tokenring-ai/utility/string/markdownList";
 import NewsRPMService from "../../NewsRPMService.ts";
 import {saveIfRequested} from "./_utils.ts";
@@ -49,7 +49,7 @@ const inputSchema = {
       type: "string",
       description: "Write the raw JSON response to a file",
     },
-  }
+  },
 } as const satisfies AgentCommandInputSchema;
 
 export default {
@@ -62,24 +62,41 @@ export default {
 
 /newsrpm search --fulltext "AI" --count 10 --publisher "Reuters"`,
   inputSchema,
-  execute: async ({args, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> => {
-    const splitCsv = (value?: string) => value?.split(",").map((entry) => entry.trim()).filter(Boolean);
-    const rows = await agent.requireServiceByType(NewsRPMService).searchArticles({
-      publisher: splitCsv(args["--publisher"]),
-      provider: splitCsv(args["--provider"]),
-      type: splitCsv(args["--type"]),
-      fullText: args["--fulltext"],
-      sponsored: args["--sponsored"],
-      count: args["--count"],
-      offset: args["--offset"],
-      minDate: args["--min"],
-      maxDate: args["--max"],
-      language: args["--language"],
-    });
+  execute: async ({
+                    args,
+                    agent,
+                  }: AgentCommandInputType<typeof inputSchema>): Promise<string> => {
+    const splitCsv = (value?: string) =>
+      value
+        ?.split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean);
+    const rows = await agent
+      .requireServiceByType(NewsRPMService)
+      .searchArticles({
+        publisher: splitCsv(args["--publisher"]),
+        provider: splitCsv(args["--provider"]),
+        type: splitCsv(args["--type"]),
+        fullText: args["--fulltext"],
+        sponsored: args["--sponsored"],
+        count: args["--count"],
+        offset: args["--offset"],
+        minDate: args["--min"],
+        maxDate: args["--max"],
+        language: args["--language"],
+      });
 
     const top = Array.isArray(rows?.rows) ? rows.rows.slice(0, 5) : [];
     const lines = top.length
-      ? ["Top results:", markdownList(top.map((a: any) => `${a.headline ?? "(no headline)"} [${a.provider ?? ""}] ${a.slug ?? ""}`))]
+      ? [
+        "Top results:",
+        markdownList(
+          top.map(
+            (a: any) =>
+              `${a.headline ?? "(no headline)"} [${a.provider ?? ""}] ${a.slug ?? ""}`,
+          ),
+        ),
+      ]
       : ["No results."];
     const saved = await saveIfRequested(rows, args, agent);
     return lines.join("\n") + (saved ? "\n" + saved : "");

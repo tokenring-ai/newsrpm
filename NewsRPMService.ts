@@ -1,17 +1,19 @@
-import {TokenRingService} from "@tokenring-ai/app/types";
+import type {TokenRingService} from "@tokenring-ai/app/types";
 import {HttpService} from "@tokenring-ai/utility/http/HttpService";
-import z from "zod";
-import {
-  type ArticleBodyResponse,
+import type z from "zod";
+import type {
+  ArticleBodyResponse,
   ArticleSearchSchema,
   IndexedDataSearchSchema,
-  type MultipleArticleResponse,
-  type ParsedNewsRPMConfig,
-  type ProviderListResponse,
-  type SingleArticleResponse
+  MultipleArticleResponse,
+  ParsedNewsRPMConfig,
+  ProviderListResponse,
+  SingleArticleResponse,
 } from "./schema.ts";
 
-export default class NewsRPMService extends HttpService implements TokenRingService {
+export default class NewsRPMService
+  extends HttpService
+  implements TokenRingService {
   readonly name = "NewsRPMService";
   description = "Service for interacting with a NewsRPM instance";
 
@@ -24,66 +26,104 @@ export default class NewsRPMService extends HttpService implements TokenRingServ
     this.defaultHeaders = this.buildHeaders();
   }
 
-  async searchIndexedData(body: z.input<typeof IndexedDataSearchSchema>): Promise<MultipleArticleResponse> {
-    if (!body?.key) throw Object.assign(new Error('key is required'), {status: 400});
-    const path = this.buildPath('/search/indexedData');
-    return this.fetchJson(path, {
-      method: 'POST',
-      body: JSON.stringify(body)
-    }, 'searchIndexedData');
+  searchIndexedData(
+    body: z.input<typeof IndexedDataSearchSchema>,
+  ): Promise<MultipleArticleResponse> {
+    if (!body?.key)
+      throw Object.assign(new Error("key is required"), {status: 400});
+    const path = this.buildPath("/search/indexedData");
+    return this.fetchJson(
+      path,
+      {
+        method: "POST",
+        body: JSON.stringify(body),
+      },
+      "searchIndexedData",
+    );
   }
 
-  async searchArticles(body: z.input<typeof ArticleSearchSchema>): Promise<MultipleArticleResponse> {
-    const path = this.buildPath('/search/article');
-    return this.fetchJson(path, {
-      method: 'POST',
-      body: JSON.stringify(body || {})
-    }, 'searchArticles');
+  searchArticles(
+    body: z.input<typeof ArticleSearchSchema>,
+  ): Promise<MultipleArticleResponse> {
+    const path = this.buildPath("/search/article");
+    return this.fetchJson(
+      path,
+      {
+        method: "POST",
+        body: JSON.stringify(body || {}),
+      },
+      "searchArticles",
+    );
   }
 
-  async getArticleBySlug(slug: string): Promise<SingleArticleResponse> {
-    if (!slug) throw Object.assign(new Error('slug is required'), {status: 400});
+  getArticleBySlug(slug: string): Promise<SingleArticleResponse> {
+    if (!slug)
+      throw Object.assign(new Error("slug is required"), {status: 400});
     const path = this.buildPath(`/article/${encodeURIComponent(slug)}`);
-    return this.fetchJson(path, {method: 'GET'}, 'getArticleBySlug');
+    return this.fetchJson(path, {method: "GET"}, "getArticleBySlug");
   }
 
-  async getArticleById(id: number): Promise<SingleArticleResponse> {
-    if (id === undefined || id === null) throw Object.assign(new Error('id is required'), {status: 400});
+  getArticleById(id: number): Promise<SingleArticleResponse> {
+    if (id === undefined || id === null)
+      throw Object.assign(new Error("id is required"), {status: 400});
     const path = this.buildPath(`/article/${encodeURIComponent(String(id))}`);
-    return this.fetchJson(path, {method: 'GET'}, 'getArticleById');
+    return this.fetchJson(path, {method: "GET"}, "getArticleById");
   }
 
-  async listProviders(): Promise<ProviderListResponse> {
-    const path = this.buildPath('/provider');
-    return this.fetchJson(path, {method: 'GET'}, 'listProviders');
+  listProviders(): Promise<ProviderListResponse> {
+    const path = this.buildPath("/provider");
+    return this.fetchJson(path, {method: "GET"}, "listProviders");
   }
 
-  async getBody(bodyId: string): Promise<ArticleBodyResponse> {
-    if (!bodyId) throw Object.assign(new Error('bodyId is required'), {status: 400});
+  getBody(bodyId: string): Promise<ArticleBodyResponse> {
+    if (!bodyId)
+      throw Object.assign(new Error("bodyId is required"), {status: 400});
     const path = this.buildPath(`/body/${encodeURIComponent(bodyId)}`);
-    return this.fetchJson(path, {method: 'GET'}, 'getBody');
+    return this.fetchJson(path, {method: "GET"}, "getBody");
   }
 
-  async renderBody(bodyId: string): Promise<ArticleBodyResponse> {
-    if (!bodyId) throw Object.assign(new Error('bodyId is required'), {status: 400});
+  renderBody(bodyId: string): Promise<ArticleBodyResponse> {
+    if (!bodyId)
+      throw Object.assign(new Error("bodyId is required"), {status: 400});
     const path = this.buildPath(`/body/${encodeURIComponent(bodyId)}/render`);
-    return this.fetchJson(path, {method: 'GET'}, 'renderBody');
+    return this.fetchJson(path, {method: "GET"}, "renderBody");
   }
 
-  async uploadArticle(article: any): Promise<{ success: boolean; id: number }> {
-    if (!article || !article.provider || !article.headline || !article.slug || !article.date || (article.quality === undefined)) {
-      throw Object.assign(new Error('Missing required article fields: provider, headline, slug, date, quality'), {status: 400});
+  uploadArticle(article: any): Promise<{ success: boolean; id: number }> {
+    if (
+      !article?.provider ||
+      !article.headline ||
+      !article.slug ||
+      !article.date ||
+      article.quality === undefined
+    ) {
+      throw Object.assign(
+        new Error(
+          "Missing required article fields: provider, headline, slug, date, quality",
+        ),
+        {status: 400},
+      );
     }
     // Note: API schema uses visiblity (typo) — do not rename when sending.
-    const path = this.buildPath('/article');
-    return this.fetchJson(path, {
-      method: 'POST',
-      body: JSON.stringify(article)
-    }, 'uploadArticle');
+    const path = this.buildPath("/article");
+    return this.fetchJson(
+      path,
+      {
+        method: "POST",
+        body: JSON.stringify(article),
+      },
+      "uploadArticle",
+    );
   }
 
-  private buildPath(pathname: string, query?: Record<string, string | number | boolean | undefined>): string {
-    const url = new URL(pathname.startsWith('/') ? pathname : '/' + pathname, 'http://dummy.com');
+  private buildPath(
+    pathname: string,
+    query?: Record<string, string | number | boolean | undefined>,
+  ): string {
+    const url = new URL(
+      pathname.startsWith("/") ? pathname : "/" + pathname,
+      "http://dummy.com",
+    );
 
     if (query) {
       for (const [k, v] of Object.entries(query)) {
@@ -96,10 +136,10 @@ export default class NewsRPMService extends HttpService implements TokenRingServ
 
   private buildHeaders(extra?: Record<string, string>): Record<string, string> {
     return {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...(this.config.requestDefaults?.headers || {}),
       ...(extra || {}),
-      'Authorization': `privateKey ${this.config.apiKey}`
+      Authorization: `privateKey ${this.config.apiKey}`,
     };
   }
 }

@@ -1,7 +1,7 @@
-import z from 'zod';
-import indexedDataRowSchema from './indexedData.ts';
-import metadataSchema from './metaData.ts';
-import normalizedDataSchema from './normalizedData.ts';
+import z from "zod";
+import indexedDataRowSchema from "./indexedData.ts";
+import metadataSchema from "./metaData.ts";
+import normalizedDataSchema from "./normalizedData.ts";
 import visibilitySchema from "./visibility.ts";
 
 export default z.object({
@@ -20,10 +20,10 @@ export default z.object({
   bodyId: z.string().optional(),
   metaData: metadataSchema.optional(),
   normalizedData: normalizedDataSchema.default({}),
-  language: z.string().default('en'),
-  visiblity: visibilitySchema.default('published'), // Intentionally misspelled to match the database column
+  language: z.string().default("en"),
+  visiblity: visibilitySchema.default("published"), // Intentionally misspelled to match the database column
   quality: z.number().default(0),
   type: z.string(),
   sponsored: z.union([z.boolean(), z.number()]).default(false),
-  indexedData: z.array(indexedDataRowSchema).default([])
+  indexedData: z.array(indexedDataRowSchema).default([]),
 });
