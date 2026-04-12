@@ -6,7 +6,6 @@
     "@tokenring-ai/app": "0.2.0",
     "@tokenring-ai/chat": "0.2.0",
     "zod": "^4.3.6",
-    "@tokenring-ai/ai-client": "0.2.0",
     "@tokenring-ai/agent": "0.2.0",
     "@tokenring-ai/utility": "0.2.0",
     "@tokenring-ai/rpc": "0.2.0",
@@ -15,7 +14,6 @@
   },
   "devDependencies": {
     "vitest": "^4.1.1",
-    "@vitest/coverage-v8": "^4.1.2",
     "typescript": "^6.0.2"
   },
   "exports": {
