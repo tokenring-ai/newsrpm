@@ -98,7 +98,7 @@ const config = {
 ### Environment Variables
 
 - `NEWSRPM_API_KEY`: Set this environment variable to your NewsRPM API key
-- `NEWSRPM_BASE_URL`: Optional, defaults to 'https://api.newsrpm.com'
+- `NEWSRPM_BASE_URL`: Optional, defaults to '<https://api.newsrpm.com>'
 
 ## Core Components
 
@@ -151,6 +151,7 @@ const result = await service.searchIndexedData({
 ```
 
 **Parameters:**
+
 - `key` (required): Index key specifier (e.g., NormalizedTicker, topic, region)
 - `value` (optional): Value to look up in the index (string or array of strings)
 - `count` (optional): Number of articles to return
@@ -173,6 +174,7 @@ const result = await service.searchArticles({
 ```
 
 **Parameters:**
+
 - `publisher` (optional): Name(s) of the publisher to search for
 - `provider` (optional): Name(s) of the provider to search for
 - `fullText` (optional): Full text query to execute against the article headline
@@ -195,6 +197,7 @@ const article = await service.getArticleBySlug("tech-earnings-report-2025");
 ```
 
 **Parameters:**
+
 - `slug` (required): The unique slug identifier of the article to retrieve
 
 **`getArticleById(id: number): Promise<SingleArticleResponse>`**
@@ -206,6 +209,7 @@ const article = await service.getArticleById(12345);
 ```
 
 **Parameters:**
+
 - `id` (required): The local numeric identifier of the article to retrieve
 
 ##### Content Management Methods
@@ -227,6 +231,7 @@ const body = await service.getBody("body-abc123");
 ```
 
 **Parameters:**
+
 - `bodyId` (required): Body ID of the article body to retrieve
 
 **`renderBody(bodyId: string): Promise<ArticleBodyResponse>`**
@@ -238,6 +243,7 @@ const rendered = await service.renderBody("body-abc123");
 ```
 
 **Parameters:**
+
 - `bodyId` (required): Body ID of the article body to retrieve (rendered)
 
 ##### Article Upload Method
@@ -258,6 +264,7 @@ const result = await service.uploadArticle({
 ```
 
 **Required Parameters:**
+
 - `provider`: News provider name
 - `headline`: Article headline
 - `slug`: URL slug
@@ -265,6 +272,7 @@ const result = await service.uploadArticle({
 - `quality`: Quality score
 
 **Optional Parameters:**
+
 - `publisher`: The actual publisher of the article
 - `link`: URL of the article
 - `expires`: Expiration date for the article
@@ -436,6 +444,7 @@ The package provides a comprehensive `/newsrpm` command for interactive use in t
 ```
 
 **Options:**
+
 - `--value <values>`: Filter by value(s), comma-separated for multiple
 - `--count <n>`: Limit number of results
 - `--offset <n>`: Skip number of results
@@ -445,6 +454,7 @@ The package provides a comprehensive `/newsrpm` command for interactive use in t
 - `--save <path>`: Save response to JSON file
 
 **Example:**
+
 ```bash
 /newsrpm index publisher --value "Reuters,BBC" --count 20
 ```
@@ -456,6 +466,7 @@ The package provides a comprehensive `/newsrpm` command for interactive use in t
 ```
 
 **Options:**
+
 - `--publisher <names>`: Filter by publisher(s), comma-separated
 - `--provider <names>`: Filter by provider(s), comma-separated
 - `--type <types>`: Filter by type(s), comma-separated
@@ -469,6 +480,7 @@ The package provides a comprehensive `/newsrpm` command for interactive use in t
 - `--save <path>`: Save response to JSON file
 
 **Example:**
+
 ```bash
 /newsrpm search --fulltext "AI" --count 10 --publisher "Reuters"
 ```
@@ -483,6 +495,7 @@ The package provides a comprehensive `/newsrpm` command for interactive use in t
 ```
 
 **Examples:**
+
 ```bash
 /newsrpm article slug "my-article-slug"
 /newsrpm article id 12345
@@ -495,9 +508,11 @@ The package provides a comprehensive `/newsrpm` command for interactive use in t
 ```
 
 **Options:**
+
 - `--save <path>`: Save response to JSON file
 
 **Example:**
+
 ```bash
 /newsrpm providers --save providers.json
 ```
@@ -509,10 +524,12 @@ The package provides a comprehensive `/newsrpm` command for interactive use in t
 ```
 
 **Options:**
+
 - `--render`: Render the body content
 - `--save <path>`: Save response to JSON file
 
 **Example:**
+
 ```bash
 /newsrpm body abc123 --render
 ```
@@ -524,9 +541,11 @@ The package provides a comprehensive `/newsrpm` command for interactive use in t
 ```
 
 **Options:**
+
 - `--json <path>`: Path to JSON file containing article data
 
 **Example:**
+
 ```bash
 /newsrpm upload --json article.json
 ```
@@ -542,11 +561,13 @@ When `@tokenring-ai/scripting` is available, the package registers 4 global func
 Search articles using full-text query against article headlines.
 
 **Parameters:**
+
 - `query` (string): Full-text search query
 
 **Returns:** JSON string of article rows array
 
 **Example:**
+
 ```javascript
 const articles = searchArticles("artificial intelligence");
 const articleList = JSON.parse(articles);
@@ -558,12 +579,14 @@ console.log(`Found ${articleList.length} articles`);
 Search indexed data by taxonomy key/value pairs (e.g., ticker symbols, topics, regions).
 
 **Parameters:**
+
 - `key` (string): Index key specifier (e.g., "NormalizedTicker", "topic", "region")
 - `value` (string): Value to look up in the index
 
 **Returns:** JSON string of article rows array
 
 **Example:**
+
 ```javascript
 const results = searchIndexedData("NormalizedTicker", "AAPL");
 const tickerNews = JSON.parse(results);
@@ -574,11 +597,13 @@ const tickerNews = JSON.parse(results);
 Retrieve a single article by its URL slug identifier.
 
 **Parameters:**
+
 - `slug` (string): The unique slug identifier of the article
 
 **Returns:** JSON string of the complete article document
 
 **Example:**
+
 ```javascript
 const article = getArticleBySlug("my-article-slug");
 const articleData = JSON.parse(article);
@@ -594,6 +619,7 @@ List all available news providers in the NewsRPM instance.
 **Returns:** JSON string of provider list array
 
 **Example:**
+
 ```javascript
 const providers = listProviders();
 const providerList = JSON.parse(providers);
@@ -760,6 +786,7 @@ try {
 ### OpenAPI Schema
 
 The complete API schema is available in the design folder:
+
 - `design/newsrpm.openapi.json` - OpenAPI 3.0 specification
 - `design/newsrpm_api.txt` - Text summary of the API
 
@@ -777,6 +804,7 @@ For upload operations, the article object must include:
 | `quality` | number | Yes | Quality score |
 
 Additional optional fields:
+
 - `publisher`: The actual publisher of the article
 - `link`: URL of the article
 - `expires`: Expiration date
@@ -862,7 +890,7 @@ const articles = await service.searchArticles({ fullText: "AI" });
 The package also supports configuration via environment variables:
 
 - `NEWSRPM_API_KEY`: Required - Your NewsRPM API key
-- `NEWSRPM_BASE_URL`: Optional - API base URL (defaults to 'https://api.newsrpm.com')
+- `NEWSRPM_BASE_URL`: Optional - API base URL (defaults to '<https://api.newsrpm.com>')
 
 ```typescript
 // Minimal configuration using environment variables
@@ -890,7 +918,7 @@ The package depends on:
 
 ### Prerequisites
 
-- **Bun**: Runtime and package manager (https://bun.sh)
+- **Bun**: Runtime and package manager (<https://bun.sh>)
 - **TypeScript**: Type-safe JavaScript (v6.0.2+)
 
 ### Building
