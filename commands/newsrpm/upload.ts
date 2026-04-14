@@ -33,7 +33,7 @@ export default {
     let parsed: any;
     try {
       parsed = JSON.parse(raw);
-    } catch (error) {
+    } catch (error: unknown) {
       throw new Error(
         `Invalid JSON in file ${jsonPath}: ${error instanceof Error ? error.message : String(error)}`,
       );
