@@ -137,8 +137,8 @@ export default class NewsRPMService
   private buildHeaders(extra?: Record<string, string>): Record<string, string> {
     return {
       "Content-Type": "application/json",
-      ...(this.config.requestDefaults?.headers || {}),
-      ...(extra || {}),
+      ...this.config.requestDefaults?.headers,
+      ...extra,
       Authorization: `privateKey ${this.config.apiKey}`,
     };
   }

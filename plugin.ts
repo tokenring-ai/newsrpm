@@ -78,7 +78,7 @@ export default {
       },
     );
     app.waitForService(ChatService, (chatService) =>
-      chatService.addTools(tools),
+      chatService.addTools(...tools),
     );
     app.waitForService(RpcService, (rpcService) => {
       rpcService.registerEndpoint(newsrpmRPC);

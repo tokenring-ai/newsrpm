@@ -7,7 +7,7 @@ import searchArticles from "./tools/searchArticles.ts";
 import searchIndexedData from "./tools/searchIndexedData.ts";
 import uploadArticle from "./tools/uploadArticle.ts";
 
-export default {
+export default [
   searchIndexedData,
   searchArticles,
   getArticleBySlug,
@@ -16,4 +16,4 @@ export default {
   listProviders,
   getBody,
   renderBody,
-};
+];
