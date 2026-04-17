@@ -4,7 +4,7 @@ import {saveIfRequested} from "./_utils.ts";
 
 const inputSchema = {
   args: {
-    "--save": {
+    "save": {
       type: "string",
       description: "Write the raw JSON response to a file",
     },

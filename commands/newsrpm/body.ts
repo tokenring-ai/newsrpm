@@ -5,12 +5,12 @@ import {saveIfRequested} from "./_utils.ts";
 
 const inputSchema = {
   args: {
-    "--render": {
+    "render": {
       type: "flag",
       description:
         "Render the body content instead of returning the raw body record",
     },
-    "--save": {
+    "save": {
       type: "string",
       description: "Write the raw JSON response to a file",
     },
@@ -42,7 +42,7 @@ export default {
     if (!positionals.bodyId)
       throw new CommandFailedError("Usage: /newsrpm body <bodyId> [--render]");
     const nrpm = agent.requireServiceByType(NewsRPMService);
-    const res = args["--render"]
+    const res = args.render
       ? await nrpm.renderBody(positionals.bodyId)
       : await nrpm.getBody(positionals.bodyId);
     const saved = await saveIfRequested(res, args, agent);

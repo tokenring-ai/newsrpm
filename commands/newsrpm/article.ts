@@ -6,15 +6,15 @@ import {saveIfRequested} from "./_utils.ts";
 
 const inputSchema = {
   args: {
-    "--slug": {
+    "slug": {
       type: "string",
       description: "Article slug to retrieve",
     },
-    "--id": {
+    "id": {
       type: "number",
       description: "Article ID to retrieve",
     },
-    "--save": {
+    "save": {
       type: "string",
       description: "Write the raw JSON response to a file",
     },
@@ -36,8 +36,8 @@ const command = {
                     agent,
                   }: AgentCommandInputType<typeof inputSchema>): Promise<string> => {
     const nrpm = agent.requireServiceByType(NewsRPMService);
-    const slug = args["--slug"];
-    const id = args["--id"];
+    const slug = args.slug;
+    const id = args.id;
 
     if ((slug && id !== undefined) || (!slug && id === undefined)) {
       throw new CommandFailedError(

@@ -5,47 +5,47 @@ import {saveIfRequested} from "./_utils.ts";
 
 const inputSchema = {
   args: {
-    "--publisher": {
+    "publisher": {
       type: "string",
       description: "Comma-separated publisher filters",
     },
-    "--provider": {
+    "provider": {
       type: "string",
       description: "Comma-separated provider filters",
     },
-    "--type": {
+    "type": {
       type: "string",
       description: "Comma-separated article type filters",
     },
-    "--fulltext": {
+    "fulltext": {
       type: "string",
       description: "Full-text query string",
     },
-    "--sponsored": {
+    "sponsored": {
       type: "flag",
       description: "Filter sponsored content; pass false to exclude it",
     },
-    "--language": {
+    "language": {
       type: "string",
       description: "Language filter",
     },
-    "--count": {
+    "count": {
       type: "number",
       description: "Maximum number of results to return",
     },
-    "--offset": {
+    "offset": {
       type: "number",
       description: "Result offset for pagination",
     },
-    "--min": {
+    "min": {
       type: "string",
       description: "Minimum publication date filter",
     },
-    "--max": {
+    "max": {
       type: "string",
       description: "Maximum publication date filter",
     },
-    "--save": {
+    "save": {
       type: "string",
       description: "Write the raw JSON response to a file",
     },
@@ -74,16 +74,16 @@ export default {
     const rows = await agent
       .requireServiceByType(NewsRPMService)
       .searchArticles({
-        publisher: splitCsv(args["--publisher"]),
-        provider: splitCsv(args["--provider"]),
-        type: splitCsv(args["--type"]),
-        fullText: args["--fulltext"],
-        sponsored: args["--sponsored"],
-        count: args["--count"],
-        offset: args["--offset"],
-        minDate: args["--min"],
-        maxDate: args["--max"],
-        language: args["--language"],
+        publisher: splitCsv(args.publisher),
+        provider: splitCsv(args.provider),
+        type: splitCsv(args.type),
+        fullText: args.fulltext,
+        sponsored: args.sponsored,
+        count: args.count,
+        offset: args.offset,
+        minDate: args.min,
+        maxDate: args.max,
+        language: args.language,
       });
 
     const top = Array.isArray(rows?.rows) ? rows.rows.slice(0, 5) : [];

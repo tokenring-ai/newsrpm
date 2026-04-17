@@ -4,31 +4,31 @@ import {saveIfRequested} from "./_utils.ts";
 
 const inputSchema = {
   args: {
-    "--value": {
+    "value": {
       type: "string",
       description: "Exact value or comma-separated values to match",
     },
-    "--count": {
+    "count": {
       type: "number",
       description: "Maximum number of results to return",
     },
-    "--offset": {
+    "offset": {
       type: "number",
       description: "Result offset for pagination",
     },
-    "--min": {
+    "min": {
       type: "date",
       description: "Minimum publication date filter",
     },
-    "--max": {
+    "max": {
       type: "date",
       description: "Maximum publication date filter",
     },
-    "--order": {
+    "order": {
       type: "string",
       description: "Sort order to request from NewsRPM",
     },
-    "--save": {
+    "save": {
       type: "string",
       description: "Write the raw JSON response to a file",
     },
@@ -56,7 +56,7 @@ export default {
                     args,
                     agent,
                   }: AgentCommandInputType<typeof inputSchema>): Promise<string> => {
-    let value: string | string[] | undefined = args["--value"];
+    let value: string | string[] | undefined = args.value;
     if (value?.includes(",")) {
       value = value
         .split(",")
@@ -69,11 +69,11 @@ export default {
       .searchIndexedData({
         key: positionals.key,
         value: value ?? "",
-        count: args["--count"],
-        offset: args["--offset"],
-        minDate: args["--min"],
-        maxDate: args["--max"],
-        order: args["--order"] as "date" | "dateWithQuality" | undefined,
+        count: args.count,
+        offset: args.offset,
+        minDate: args.min,
+        maxDate: args.max,
+        order: args.order as "date" | "dateWithQuality" | undefined,
       });
     const top = Array.isArray(res?.rows) ? res.rows.slice(0, 5) : [];
     const lines = top.length

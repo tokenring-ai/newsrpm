@@ -4,7 +4,7 @@ import NewsRPMService from "../../NewsRPMService.ts";
 
 const inputSchema = {
   args: {
-    "--json": {
+    "json": {
       type: "string",
       description: "Path to the article JSON file to upload",
       required: true,
@@ -25,7 +25,7 @@ export default {
                     args,
                     agent,
                   }: AgentCommandInputType<typeof inputSchema>): Promise<string> => {
-    const jsonPath = args["--json"];
+    const jsonPath = args.json;
     const raw = await agent
       .requireServiceByType(FileSystemService)
       .readTextFile(jsonPath, agent);
