@@ -17,11 +17,11 @@ const inputSchema = {
       description: "Result offset for pagination",
     },
     "--min": {
-      type: "string",
+      type: "date",
       description: "Minimum publication date filter",
     },
     "--max": {
-      type: "string",
+      type: "date",
       description: "Maximum publication date filter",
     },
     "--order": {
@@ -71,8 +71,8 @@ export default {
         value: value ?? "",
         count: args["--count"],
         offset: args["--offset"],
-        minDate: args["--min"] ? Date.parse(args["--min"]) : undefined,
-        maxDate: args["--max"] ? Date.parse(args["--max"]) : undefined,
+        minDate: args["--min"],
+        maxDate: args["--max"],
         order: args["--order"] as "date" | "dateWithQuality" | undefined,
       });
     const top = Array.isArray(res?.rows) ? res.rows.slice(0, 5) : [];
