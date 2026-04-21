@@ -2,6 +2,6 @@ import z from "zod";
 
 export default z.object({
   format: z.string(),
-  name: z.string().optional(),
+  name: z.string().exactOptional(),
   content: z.string(),
 });

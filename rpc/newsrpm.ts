@@ -1,5 +1,5 @@
 import type TokenRingApp from "@tokenring-ai/app";
-import {createRPCEndpoint} from "@tokenring-ai/rpc/createRPCEndpoint";
+import { createRPCEndpoint } from "@tokenring-ai/rpc/createRPCEndpoint";
 import NewsRPMService from "../NewsRPMService.ts";
 import NewsRPMRpcSchema from "./schema.ts";
 

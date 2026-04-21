@@ -1,34 +1,35 @@
-import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import type { AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand } from "@tokenring-ai/agent/types";
+import { stripUndefinedKeys } from "@tokenring-ai/utility/object/stripObject";
 import NewsRPMService from "../../NewsRPMService.ts";
-import {saveIfRequested} from "./_utils.ts";
+import { saveIfRequested } from "./_utils.ts";
 
 const inputSchema = {
   args: {
-    "value": {
+    value: {
       type: "string",
       description: "Exact value or comma-separated values to match",
     },
-    "count": {
+    count: {
       type: "number",
       description: "Maximum number of results to return",
     },
-    "offset": {
+    offset: {
       type: "number",
       description: "Result offset for pagination",
     },
-    "min": {
+    min: {
       type: "date",
       description: "Minimum publication date filter",
     },
-    "max": {
+    max: {
       type: "date",
       description: "Maximum publication date filter",
     },
-    "order": {
+    order: {
       type: "string",
       description: "Sort order to request from NewsRPM",
     },
-    "save": {
+    save: {
       type: "string",
       description: "Write the raw JSON response to a file",
     },
@@ -51,22 +52,17 @@ export default {
 
 /newsrpm index publisher --value "Reuters,BBC" --count 20`,
   inputSchema,
-  execute: async ({
-                    positionals,
-                    args,
-                    agent,
-                  }: AgentCommandInputType<typeof inputSchema>): Promise<string> => {
+  execute: async ({ positionals, args, agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> => {
     let value: string | string[] | undefined = args.value;
     if (value?.includes(",")) {
       value = value
         .split(",")
-        .map((entry) => entry.trim())
+        .map(entry => entry.trim())
         .filter(Boolean);
     }
 
-    const res = await agent
-      .requireServiceByType(NewsRPMService)
-      .searchIndexedData({
+    const res = await agent.requireServiceByType(NewsRPMService).searchIndexedData(
+      stripUndefinedKeys({
         key: positionals.key,
         value: value ?? "",
         count: args.count,
@@ -74,16 +70,11 @@ export default {
         minDate: args.min,
         maxDate: args.max,
         order: args.order as "date" | "dateWithQuality" | undefined,
-      });
+      }),
+    );
     const top = Array.isArray(res?.rows) ? res.rows.slice(0, 5) : [];
     const lines = top.length
-      ? [
-        "Top results:",
-        ...top.map(
-          (a: any) =>
-            `- ${a.headline ?? "(no headline)"} [${a.provider ?? ""}] ${a.slug ?? ""}`,
-        ),
-      ]
+      ? ["Top results:", ...top.map((a: any) => `- ${a.headline ?? "(no headline)"} [${a.provider ?? ""}] ${a.slug ?? ""}`)]
       : ["No results."];
     const saved = await saveIfRequested(res, args, agent);
     return lines.join("\n") + (saved ? "\n" + saved : "");

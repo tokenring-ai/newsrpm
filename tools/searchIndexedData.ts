@@ -1,23 +1,21 @@
-import type {Agent} from "@tokenring-ai/agent";
-import type {TokenRingToolDefinition, TokenRingToolResult} from "@tokenring-ai/chat/schema";
+import type { Agent } from "@tokenring-ai/agent";
+import type { TokenRingToolDefinition, TokenRingToolResult } from "@tokenring-ai/chat/schema";
+import { stripUndefinedKeys } from "@tokenring-ai/utility/object/stripObject";
 
-import {z} from "zod";
+import { z } from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
 const description = "Search NewsRPM indexedData by taxonomy key/value";
 const name = "newsrpm_searchIndexedData";
 const displayName = "Newsrpm/searchIndexedData";
 
-async function execute(
-  args: z.output<typeof inputSchema>,
-  agent: Agent,
-): Promise<TokenRingToolResult> {
+async function execute(args: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
   const service = agent.requireServiceByType(NewsRPMService);
   if (!args.key) {
     throw new Error(`[${name}] Key is required`);
   }
   // Convert string dates to Unix timestamps for the API
-  const payload = {
+  const payload = stripUndefinedKeys({
     key: args.key,
     value: args.value ?? "",
     count: args.count,
@@ -25,38 +23,22 @@ async function execute(
     minDate: args.minDate ? Date.parse(args.minDate) : undefined,
     maxDate: args.maxDate ? Date.parse(args.maxDate) : undefined,
     order: args.order,
-  };
+  });
   const result = await service.searchIndexedData(payload);
   return JSON.stringify(result);
 }
 
 const inputSchema = z.object({
-  key: z
-    .string()
-    .min(1)
-    .describe("Index key specifier (e.g., NormalizedTicker, topic, region)"),
+  key: z.string().min(1).describe("Index key specifier (e.g., NormalizedTicker, topic, region)"),
   value: z
     .union([z.string(), z.array(z.string())])
-    .optional()
+    .exactOptional()
     .describe("Value to look up in the index (string or array of strings)"),
-  count: z.number().int().optional().describe("Number of articles to return"),
-  offset: z
-    .number()
-    .int()
-    .optional()
-    .describe("How many articles to skip before returning results"),
-  minDate: z
-    .string()
-    .optional()
-    .describe("Earliest date to return (inclusive, ISO 8601)"),
-  maxDate: z
-    .string()
-    .optional()
-    .describe("Latest date to return (inclusive, ISO 8601)"),
-  order: z
-    .enum(["date", "dateWithQuality"])
-    .optional()
-    .describe("Sort order: date or dateWithQuality"),
+  count: z.number().int().exactOptional().describe("Number of articles to return"),
+  offset: z.number().int().exactOptional().describe("How many articles to skip before returning results"),
+  minDate: z.string().exactOptional().describe("Earliest date to return (inclusive, ISO 8601)"),
+  maxDate: z.string().exactOptional().describe("Latest date to return (inclusive, ISO 8601)"),
+  order: z.enum(["date", "dateWithQuality"]).exactOptional().describe("Sort order: date or dateWithQuality"),
 });
 
 export default {

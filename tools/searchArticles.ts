@@ -1,17 +1,13 @@
-import type {Agent} from "@tokenring-ai/agent";
-import type {TokenRingToolDefinition, TokenRingToolResult} from "@tokenring-ai/chat/schema";
-import {z} from "zod";
+import type { Agent } from "@tokenring-ai/agent";
+import type { TokenRingToolDefinition, TokenRingToolResult } from "@tokenring-ai/chat/schema";
+import { z } from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
-const description =
-  "Search NewsRPM articles by publisher/provider/type/fullText";
+const description = "Search NewsRPM articles by publisher/provider/type/fullText";
 const name = "newsrpm_searchArticles";
 const displayName = "Newsrpm/searchArticles";
 
-async function execute(
-  args: z.output<typeof inputSchema>,
-  agent: Agent,
-): Promise<TokenRingToolResult> {
+async function execute(args: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
   const service = agent.requireServiceByType(NewsRPMService);
   const result = await service.searchArticles(args);
   return JSON.stringify(result);
@@ -20,39 +16,23 @@ async function execute(
 const inputSchema = z.object({
   publisher: z
     .union([z.string(), z.array(z.string())])
-    .optional()
+    .exactOptional()
     .describe("Name(s) of the publisher to search for"),
   provider: z
     .union([z.string(), z.array(z.string())])
-    .optional()
+    .exactOptional()
     .describe("Name(s) of the provider to search for"),
-  fullText: z
-    .string()
-    .optional()
-    .describe("Full text query to execute against the article headline"),
+  fullText: z.string().exactOptional().describe("Full text query to execute against the article headline"),
   type: z
     .union([z.string(), z.array(z.string())])
-    .optional()
+    .exactOptional()
     .describe("Type(s) of article to search for"),
-  sponsored: z
-    .boolean()
-    .optional()
-    .describe("Restrict to sponsored or non-sponsored content"),
-  count: z.number().int().optional().describe("Number of articles to return"),
-  offset: z
-    .number()
-    .int()
-    .optional()
-    .describe("How many articles to skip before returning results"),
-  minDate: z
-    .string()
-    .optional()
-    .describe("Earliest date to return (inclusive, ISO 8601)"),
-  maxDate: z
-    .string()
-    .optional()
-    .describe("Latest date to return (inclusive, ISO 8601)"),
-  language: z.string().optional().describe("Filter by article language"),
+  sponsored: z.boolean().exactOptional().describe("Restrict to sponsored or non-sponsored content"),
+  count: z.number().int().exactOptional().describe("Number of articles to return"),
+  offset: z.number().int().exactOptional().describe("How many articles to skip before returning results"),
+  minDate: z.string().exactOptional().describe("Earliest date to return (inclusive, ISO 8601)"),
+  maxDate: z.string().exactOptional().describe("Latest date to return (inclusive, ISO 8601)"),
+  language: z.string().exactOptional().describe("Filter by article language"),
 });
 
 export default {

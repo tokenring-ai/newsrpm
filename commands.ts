@@ -5,11 +5,4 @@ import newsrpmProviders from "./commands/newsrpm/providers.ts";
 import newsrpmSearch from "./commands/newsrpm/search.ts";
 import newsrpmUpload from "./commands/newsrpm/upload.ts";
 
-export default [
-  newsrpmIndex,
-  newsrpmSearch,
-  newsrpmArticle,
-  newsrpmProviders,
-  newsrpmBody,
-  newsrpmUpload,
-];
+export default [newsrpmIndex, newsrpmSearch, newsrpmArticle, newsrpmProviders, newsrpmBody, newsrpmUpload];

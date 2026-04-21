@@ -1,1 +1,1 @@
-export {default as NewsRPMService} from "./NewsRPMService.ts";
+export { default as NewsRPMService } from "./NewsRPMService.ts";

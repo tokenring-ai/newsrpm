@@ -1,51 +1,52 @@
-import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import type { AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand } from "@tokenring-ai/agent/types";
+import { stripUndefinedKeys } from "@tokenring-ai/utility/object/stripObject";
 import markdownList from "@tokenring-ai/utility/string/markdownList";
 import NewsRPMService from "../../NewsRPMService.ts";
-import {saveIfRequested} from "./_utils.ts";
+import { saveIfRequested } from "./_utils.ts";
 
 const inputSchema = {
   args: {
-    "publisher": {
+    publisher: {
       type: "string",
       description: "Comma-separated publisher filters",
     },
-    "provider": {
+    provider: {
       type: "string",
       description: "Comma-separated provider filters",
     },
-    "type": {
+    type: {
       type: "string",
       description: "Comma-separated article type filters",
     },
-    "fulltext": {
+    fulltext: {
       type: "string",
       description: "Full-text query string",
     },
-    "sponsored": {
+    sponsored: {
       type: "flag",
       description: "Filter sponsored content; pass false to exclude it",
     },
-    "language": {
+    language: {
       type: "string",
       description: "Language filter",
     },
-    "count": {
+    count: {
       type: "number",
       description: "Maximum number of results to return",
     },
-    "offset": {
+    offset: {
       type: "number",
       description: "Result offset for pagination",
     },
-    "min": {
+    min: {
       type: "string",
       description: "Minimum publication date filter",
     },
-    "max": {
+    max: {
       type: "string",
       description: "Maximum publication date filter",
     },
-    "save": {
+    save: {
       type: "string",
       description: "Write the raw JSON response to a file",
     },
@@ -62,18 +63,14 @@ export default {
 
 /newsrpm search --fulltext "AI" --count 10 --publisher "Reuters"`,
   inputSchema,
-  execute: async ({
-                    args,
-                    agent,
-                  }: AgentCommandInputType<typeof inputSchema>): Promise<string> => {
+  execute: async ({ args, agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> => {
     const splitCsv = (value?: string) =>
       value
         ?.split(",")
-        .map((entry) => entry.trim())
+        .map(entry => entry.trim())
         .filter(Boolean);
-    const rows = await agent
-      .requireServiceByType(NewsRPMService)
-      .searchArticles({
+    const rows = await agent.requireServiceByType(NewsRPMService).searchArticles(
+      stripUndefinedKeys({
         publisher: splitCsv(args.publisher),
         provider: splitCsv(args.provider),
         type: splitCsv(args.type),
@@ -84,19 +81,12 @@ export default {
         minDate: args.min,
         maxDate: args.max,
         language: args.language,
-      });
+      }),
+    );
 
     const top = Array.isArray(rows?.rows) ? rows.rows.slice(0, 5) : [];
     const lines = top.length
-      ? [
-        "Top results:",
-        markdownList(
-          top.map(
-            (a: any) =>
-              `${a.headline ?? "(no headline)"} [${a.provider ?? ""}] ${a.slug ?? ""}`,
-          ),
-        ),
-      ]
+      ? ["Top results:", markdownList(top.map((a: any) => `${a.headline ?? "(no headline)"} [${a.provider ?? ""}] ${a.slug ?? ""}`))]
       : ["No results."];
     const saved = await saveIfRequested(rows, args, agent);
     return lines.join("\n") + (saved ? "\n" + saved : "");

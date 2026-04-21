@@ -1,6 +1,6 @@
-import type {Agent} from "@tokenring-ai/agent";
-import type {TokenRingToolDefinition, TokenRingToolResult} from "@tokenring-ai/chat/schema";
-import {z} from "zod";
+import type { Agent } from "@tokenring-ai/agent";
+import type { TokenRingToolDefinition, TokenRingToolResult } from "@tokenring-ai/chat/schema";
+import { z } from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
 const description = "Get a NewsRPM article by id";
@@ -8,10 +8,7 @@ const description = "Get a NewsRPM article by id";
 const name = "newsrpm_getArticleById";
 const displayName = "Newsrpm/getArticleById";
 
-async function execute(
-  args: z.output<typeof inputSchema>,
-  agent: Agent,
-): Promise<TokenRingToolResult> {
+async function execute(args: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
   const service = agent.requireServiceByType(NewsRPMService);
   if (!args.id) {
     throw new Error(`[${name}] ID is required`);
@@ -21,10 +18,7 @@ async function execute(
 }
 
 const inputSchema = z.object({
-  id: z
-    .number()
-    .int()
-    .describe("The local numeric identifier of the article to retrieve"),
+  id: z.number().int().describe("The local numeric identifier of the article to retrieve"),
 });
 
 export default {

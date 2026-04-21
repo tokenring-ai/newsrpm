@@ -1,19 +1,19 @@
-import type {TokenRingPlugin} from "@tokenring-ai/app";
-import {ChatService} from "@tokenring-ai/chat";
-import {RpcService} from "@tokenring-ai/rpc";
-import {ScriptingService} from "@tokenring-ai/scripting";
-import type {ScriptingThis} from "@tokenring-ai/scripting/ScriptingService";
-import {z} from "zod";
+import type { TokenRingPlugin } from "@tokenring-ai/app";
+import { ChatService } from "@tokenring-ai/chat";
+import { RpcService } from "@tokenring-ai/rpc";
+import { ScriptingService } from "@tokenring-ai/scripting";
+import type { ScriptingThis } from "@tokenring-ai/scripting/ScriptingService";
+import { z } from "zod";
 import NewsRPMService from "./NewsRPMService.ts";
 import packageJSON from "./package.json";
 import newsrpmRPC from "./rpc/newsrpm.ts";
-import {NewsRPMConfigSchema} from "./schema.ts";
+import { NewsRPMConfigSchema } from "./schema.ts";
 import tools from "./tools.ts";
 
 const packageConfigSchema = z.object({
   newsrpm: NewsRPMConfigSchema.nullable().prefault(() => {
     if (process.env.NEWSRPM_API_KEY) {
-      return {apiKey: process.env.NEWSRPM_API_KEY, authMode: "privateHeader"};
+      return { apiKey: process.env.NEWSRPM_API_KEY, authMode: "privateHeader" };
     }
     return null;
   }),
@@ -25,62 +25,45 @@ export default {
   version: packageJSON.version,
   description: packageJSON.description,
   install(app, config) {
-    app.services.waitForItemByType(
-      ScriptingService,
-      (scriptingService: ScriptingService) => {
-        scriptingService.registerFunction("searchArticles", {
-          type: "native",
-          params: ["query"],
-          async execute(this: ScriptingThis, query: string): Promise<string> {
-            const result = await this.agent
-              .requireServiceByType(NewsRPMService)
-              .searchArticles({fullText: query});
-            return JSON.stringify(result.rows);
-          },
-        });
+    app.services.waitForItemByType(ScriptingService, (scriptingService: ScriptingService) => {
+      scriptingService.registerFunction("searchArticles", {
+        type: "native",
+        params: ["query"],
+        async execute(this: ScriptingThis, query: string): Promise<string> {
+          const result = await this.agent.requireServiceByType(NewsRPMService).searchArticles({ fullText: query });
+          return JSON.stringify(result.rows);
+        },
+      });
 
-        scriptingService.registerFunction("searchIndexedData", {
-          type: "native",
-          params: ["key", "value"],
-          async execute(
-            this: ScriptingThis,
-            key: string,
-            value: string,
-          ): Promise<string> {
-            const result = await this.agent
-              .requireServiceByType(NewsRPMService)
-              .searchIndexedData({key, value});
-            return JSON.stringify(result.rows);
-          },
-        });
+      scriptingService.registerFunction("searchIndexedData", {
+        type: "native",
+        params: ["key", "value"],
+        async execute(this: ScriptingThis, key: string, value: string): Promise<string> {
+          const result = await this.agent.requireServiceByType(NewsRPMService).searchIndexedData({ key, value });
+          return JSON.stringify(result.rows);
+        },
+      });
 
-        scriptingService.registerFunction("getArticleBySlug", {
-          type: "native",
-          params: ["slug"],
-          async execute(this: ScriptingThis, slug: string): Promise<string> {
-            const result = await this.agent
-              .requireServiceByType(NewsRPMService)
-              .getArticleBySlug(slug);
-            return JSON.stringify(result.doc);
-          },
-        });
+      scriptingService.registerFunction("getArticleBySlug", {
+        type: "native",
+        params: ["slug"],
+        async execute(this: ScriptingThis, slug: string): Promise<string> {
+          const result = await this.agent.requireServiceByType(NewsRPMService).getArticleBySlug(slug);
+          return JSON.stringify(result.doc);
+        },
+      });
 
-        scriptingService.registerFunction("listProviders", {
-          type: "native",
-          params: [],
-          async execute(this: ScriptingThis): Promise<string> {
-            const result = await this.agent
-              .requireServiceByType(NewsRPMService)
-              .listProviders();
-            return JSON.stringify(result.rows);
-          },
-        });
-      },
-    );
-    app.waitForService(ChatService, (chatService) =>
-      chatService.addTools(...tools),
-    );
-    app.waitForService(RpcService, (rpcService) => {
+      scriptingService.registerFunction("listProviders", {
+        type: "native",
+        params: [],
+        async execute(this: ScriptingThis): Promise<string> {
+          const result = await this.agent.requireServiceByType(NewsRPMService).listProviders();
+          return JSON.stringify(result.rows);
+        },
+      });
+    });
+    app.waitForService(ChatService, chatService => chatService.addTools(...tools));
+    app.waitForService(RpcService, rpcService => {
       rpcService.registerEndpoint(newsrpmRPC);
     });
     if (config.newsrpm) {

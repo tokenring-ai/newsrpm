@@ -1,16 +1,13 @@
-import type {Agent} from "@tokenring-ai/agent";
-import type {TokenRingToolDefinition, TokenRingToolResult} from "@tokenring-ai/chat/schema";
-import {z} from "zod";
+import type { Agent } from "@tokenring-ai/agent";
+import type { TokenRingToolDefinition, TokenRingToolResult } from "@tokenring-ai/chat/schema";
+import { z } from "zod";
 import NewsRPMService from "../NewsRPMService.ts";
 
 const description = "Retrieve an article body (native format) by bodyId";
 const name = "newsrpm_getBody";
 const displayName = "Newsrpm/getBody";
 
-async function execute(
-  args: z.output<typeof inputSchema>,
-  agent: Agent,
-): Promise<TokenRingToolResult> {
+async function execute(args: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
   const service = agent.requireServiceByType(NewsRPMService);
   if (!args.bodyId) {
     throw new Error(`[${name}] Body ID is required`);
