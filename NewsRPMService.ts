@@ -1,81 +1,113 @@
 import type { TokenRingService } from "@tokenring-ai/app/types";
-import { HttpService } from "@tokenring-ai/utility/http/HttpService";
-import type z from "zod";
-import type {
-  ArticleBodyResponse,
+import { HTTPRetriever } from "@tokenring-ai/utility/http/HTTPRetriever";
+import { z } from "zod";
+import {
   ArticleSearchSchema,
+  ArticleBodyResponseSchema,
   IndexedDataSearchSchema,
-  MultipleArticleResponse,
-  ParsedNewsRPMConfig,
-  ProviderListResponse,
-  SingleArticleResponse,
+  MultipleArticleResponseSchema,
+  ProviderListResponseSchema,
+  SingleArticleResponseSchema,
 } from "./schema.ts";
+import type { ArticleBodyResponse, MultipleArticleResponse, ParsedNewsRPMConfig, ProviderListResponse, SingleArticleResponse } from "./schema.ts";
 
-export default class NewsRPMService extends HttpService implements TokenRingService {
+const UploadArticleResponseSchema = z
+  .object({
+    success: z.boolean(),
+    id: z.number(),
+  })
+  .passthrough();
+
+export default class NewsRPMService implements TokenRingService {
   readonly name = "NewsRPMService";
   description = "Service for interacting with a NewsRPM instance";
 
-  protected baseUrl: string;
-  protected defaultHeaders: Record<string, string>;
+  private readonly retriever: HTTPRetriever;
 
   constructor(private config: ParsedNewsRPMConfig) {
-    super();
-    this.baseUrl = config.baseUrl;
-    this.defaultHeaders = this.buildHeaders();
+    this.retriever = new HTTPRetriever({
+      baseUrl: config.baseUrl,
+      headers: {
+        "Content-Type": "application/json",
+        ...config.requestDefaults?.headers,
+        Authorization: `privateKey ${config.apiKey}`,
+      },
+      timeout: 10_000,
+    });
   }
 
   searchIndexedData(body: z.input<typeof IndexedDataSearchSchema>): Promise<MultipleArticleResponse> {
     if (!body?.key) throw Object.assign(new Error("key is required"), { status: 400 });
-    const path = this.buildPath("/search/indexedData");
-    return this.fetchJson(
-      path,
-      {
+    return this.retriever.fetchValidatedJson({
+      url: this.buildPath("/search/indexedData"),
+      opts: {
         method: "POST",
         body: JSON.stringify(body),
       },
-      "searchIndexedData",
-    );
+      schema: MultipleArticleResponseSchema,
+      context: "searchIndexedData",
+    });
   }
 
   searchArticles(body: z.input<typeof ArticleSearchSchema>): Promise<MultipleArticleResponse> {
-    const path = this.buildPath("/search/article");
-    return this.fetchJson(
-      path,
-      {
+    return this.retriever.fetchValidatedJson({
+      url: this.buildPath("/search/article"),
+      opts: {
         method: "POST",
         body: JSON.stringify(body || {}),
       },
-      "searchArticles",
-    );
+      schema: MultipleArticleResponseSchema,
+      context: "searchArticles",
+    });
   }
 
   getArticleBySlug(slug: string): Promise<SingleArticleResponse> {
     if (!slug) throw Object.assign(new Error("slug is required"), { status: 400 });
-    const path = this.buildPath(`/article/${encodeURIComponent(slug)}`);
-    return this.fetchJson(path, { method: "GET" }, "getArticleBySlug");
+    return this.retriever.fetchValidatedJson({
+      url: this.buildPath(`/article/${encodeURIComponent(slug)}`),
+      opts: { method: "GET" },
+      schema: SingleArticleResponseSchema,
+      context: "getArticleBySlug",
+    });
   }
 
   getArticleById(id: number): Promise<SingleArticleResponse> {
     if (id === undefined || id === null) throw Object.assign(new Error("id is required"), { status: 400 });
-    const path = this.buildPath(`/article/${encodeURIComponent(String(id))}`);
-    return this.fetchJson(path, { method: "GET" }, "getArticleById");
+    return this.retriever.fetchValidatedJson({
+      url: this.buildPath(`/article/${encodeURIComponent(String(id))}`),
+      opts: { method: "GET" },
+      schema: SingleArticleResponseSchema,
+      context: "getArticleById",
+    });
   }
 
   listProviders(): Promise<ProviderListResponse> {
-    const path = this.buildPath("/provider");
-    return this.fetchJson(path, { method: "GET" }, "listProviders");
+    return this.retriever.fetchValidatedJson({
+      url: this.buildPath("/provider"),
+      opts: { method: "GET" },
+      schema: ProviderListResponseSchema,
+      context: "listProviders",
+    });
   }
 
   getBody(bodyId: string): Promise<ArticleBodyResponse> {
     if (!bodyId) throw Object.assign(new Error("bodyId is required"), { status: 400 });
-    const path = this.buildPath(`/body/${encodeURIComponent(bodyId)}`);
-    return this.fetchJson(path, { method: "GET" }, "getBody");
+    return this.retriever.fetchValidatedJson({
+      url: this.buildPath(`/body/${encodeURIComponent(bodyId)}`),
+      opts: { method: "GET" },
+      schema: ArticleBodyResponseSchema,
+      context: "getBody",
+    });
   }
 
   renderBody(bodyId: string): Promise<ArticleBodyResponse> {
     if (!bodyId) throw Object.assign(new Error("bodyId is required"), { status: 400 });
-    const path = this.buildPath(`/body/${encodeURIComponent(bodyId)}/render`);
-    return this.fetchJson(path, { method: "GET" }, "renderBody");
+    return this.retriever.fetchValidatedJson({
+      url: this.buildPath(`/body/${encodeURIComponent(bodyId)}/render`),
+      opts: { method: "GET" },
+      schema: ArticleBodyResponseSchema,
+      context: "renderBody",
+    });
   }
 
   uploadArticle(article: any): Promise<{ success: boolean; id: number }> {
@@ -83,15 +115,15 @@ export default class NewsRPMService extends HttpService implements TokenRingServ
       throw Object.assign(new Error("Missing required article fields: provider, headline, slug, date, quality"), { status: 400 });
     }
     // Note: API schema uses visiblity (typo) — do not rename when sending.
-    const path = this.buildPath("/article");
-    return this.fetchJson(
-      path,
-      {
+    return this.retriever.fetchValidatedJson({
+      url: this.buildPath("/article"),
+      opts: {
         method: "POST",
         body: JSON.stringify(article),
       },
-      "uploadArticle",
-    );
+      schema: UploadArticleResponseSchema,
+      context: "uploadArticle",
+    });
   }
 
   private buildPath(pathname: string, query?: Record<string, string | number | boolean | undefined>): string {
@@ -104,14 +136,5 @@ export default class NewsRPMService extends HttpService implements TokenRingServ
       }
     }
     return url.pathname + url.search;
-  }
-
-  private buildHeaders(extra?: Record<string, string>): Record<string, string> {
-    return {
-      "Content-Type": "application/json",
-      ...this.config.requestDefaults?.headers,
-      ...extra,
-      Authorization: `privateKey ${this.config.apiKey}`,
-    };
   }
 }
