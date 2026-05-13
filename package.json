@@ -3,14 +3,14 @@
   "version": "0.2.0",
   "description": "Specialized tools for aggregating, retrieving, and uploading news articles.",
   "dependencies": {
-    "@tokenring-ai/app": "0.2.0",
-    "@tokenring-ai/chat": "0.2.0",
+    "@tokenring-ai/app": "workspace:*",
+    "@tokenring-ai/chat": "workspace:*",
     "zod": "^4.3.6",
-    "@tokenring-ai/agent": "0.2.0",
-    "@tokenring-ai/utility": "0.2.0",
-    "@tokenring-ai/rpc": "0.2.0",
-    "@tokenring-ai/scripting": "0.2.0",
-    "@tokenring-ai/filesystem": "0.2.0"
+    "@tokenring-ai/agent": "workspace:*",
+    "@tokenring-ai/utility": "workspace:*",
+    "@tokenring-ai/rpc": "workspace:*",
+    "@tokenring-ai/scripting": "workspace:*",
+    "@tokenring-ai/filesystem": "workspace:*"
   },
   "devDependencies": {
     "vitest": "^4.1.1",

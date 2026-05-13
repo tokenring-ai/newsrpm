@@ -1,15 +1,15 @@
 import type { TokenRingService } from "@tokenring-ai/app/types";
 import { HTTPRetriever } from "@tokenring-ai/utility/http/HTTPRetriever";
 import { z } from "zod";
+import type { ArticleBodyResponse, MultipleArticleResponse, ParsedNewsRPMConfig, ProviderListResponse, SingleArticleResponse } from "./schema.ts";
 import {
-  ArticleSearchSchema,
   ArticleBodyResponseSchema,
-  IndexedDataSearchSchema,
+  type ArticleSearchSchema,
+  type IndexedDataSearchSchema,
   MultipleArticleResponseSchema,
   ProviderListResponseSchema,
   SingleArticleResponseSchema,
 } from "./schema.ts";
-import type { ArticleBodyResponse, MultipleArticleResponse, ParsedNewsRPMConfig, ProviderListResponse, SingleArticleResponse } from "./schema.ts";
 
 const UploadArticleResponseSchema = z
   .object({

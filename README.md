@@ -1,10 +1,12 @@
 # @tokenring-ai/newsrpm
 
-NewsRPM integration package for the TokenRing ecosystem, providing comprehensive news article management, search, and retrieval capabilities.
+NewsRPM integration package for the TokenRing ecosystem, providing comprehensive news article management, search, and
+retrieval capabilities.
 
 ## Overview
 
-NewsRPM is a powerful API for storing, indexing, and retrieving news articles and related metadata. This package wraps the NewsRPM Cloud Platform API calls and exposes them as:
+NewsRPM is a powerful API for storing, indexing, and retrieving news articles and related metadata. This package wraps
+the NewsRPM Cloud Platform API calls and exposes them as:
 
 - **NewsRPMService**: A TokenRingService for direct API interactions
 - **8 Tools**: Ready-to-use tools for the TokenRing tools registry
@@ -13,7 +15,8 @@ NewsRPM is a powerful API for storing, indexing, and retrieving news articles an
 
 ## Key Features
 
-- **Comprehensive Search**: Search indexed data by taxonomy keys (e.g., ticker, topic, region) and articles by publisher, provider, type, full-text, and more
+- **Comprehensive Search**: Search indexed data by taxonomy keys (e.g., ticker, topic, region) and articles by
+  publisher, provider, type, full-text, and more
 - **Article Retrieval**: Retrieve articles by slug or numeric ID with full metadata
 - **Content Management**: Fetch article bodies in native format or rendered HTML
 - **Provider Management**: List and manage available news providers
@@ -26,7 +29,8 @@ NewsRPM is a powerful API for storing, indexing, and retrieving news articles an
 
 ## Installation
 
-This package is part of the TokenRing monorepo. When used within TokenRing applications, it can be enabled in the registry like other TokenRing packages.
+This package is part of the TokenRing monorepo. When used within TokenRing applications, it can be enabled in the
+registry like other TokenRing packages.
 
 ### Package Registration
 
@@ -320,16 +324,16 @@ The package provides 8 tools for agent integration, automatically registered wit
 
 ### Available Tools
 
-| Tool Name | Display Name | Description |
-|-----------|--------------|-------------|
-| `newsrpm_searchIndexedData` | Newsrpm/searchIndexedData | Search by taxonomy keys |
-| `newsrpm_searchArticles` | Newsrpm/searchArticles | Search articles with filters |
-| `newsrpm_getArticleBySlug` | Newsrpm/getArticleBySlug | Get article by slug |
-| `newsrpm_getArticleById` | Newsrpm/getArticleById | Get article by ID |
-| `newsrpm_uploadArticle` | Newsrpm/uploadArticle | Upload new or update existing article |
-| `newsrpm_listProviders` | Newsrpm/listProviders | List available news providers |
-| `newsrpm_getBody` | Newsrpm/getBody | Get article body in native format |
-| `newsrpm_renderBody` | Newsrpm/renderBody | Render article body as HTML |
+| Tool Name                   | Display Name              | Description                           |
+|-----------------------------|---------------------------|---------------------------------------|
+| `newsrpm_searchIndexedData` | Newsrpm/searchIndexedData | Search by taxonomy keys               |
+| `newsrpm_searchArticles`    | Newsrpm/searchArticles    | Search articles with filters          |
+| `newsrpm_getArticleBySlug`  | Newsrpm/getArticleBySlug  | Get article by slug                   |
+| `newsrpm_getArticleById`    | Newsrpm/getArticleById    | Get article by ID                     |
+| `newsrpm_uploadArticle`     | Newsrpm/uploadArticle     | Upload new or update existing article |
+| `newsrpm_listProviders`     | Newsrpm/listProviders     | List available news providers         |
+| `newsrpm_getBody`           | Newsrpm/getBody           | Get article body in native format     |
+| `newsrpm_renderBody`        | Newsrpm/renderBody        | Render article body as HTML           |
 
 ### Tool Usage Examples
 
@@ -408,7 +412,8 @@ The package provides 8 tools for agent integration, automatically registered wit
 
 ### Tool Usage in Agents
 
-Tools are automatically registered with the TokenRing chat service when the plugin is installed. Agents can call these tools directly:
+Tools are automatically registered with the TokenRing chat service when the plugin is installed. Agents can call these
+tools directly:
 
 ```typescript
 // In an agent context
@@ -552,7 +557,8 @@ The package provides a comprehensive `/newsrpm` command for interactive use in t
 
 ## Scripting Functions
 
-When `@tokenring-ai/scripting` is available, the package registers 4 global functions that can be used in JavaScript/TypeScript scripting contexts.
+When `@tokenring-ai/scripting` is available, the package registers 4 global functions that can be used in
+JavaScript/TypeScript scripting contexts.
 
 ### Available Functions
 
@@ -669,12 +675,12 @@ const combinedAnalysis = llm(`Analyze technology trends based on: ${techNews}\n\
 
 The package supports 4 authentication modes:
 
-| Mode | Method | Description |
-|------|--------|-------------|
-| `privateHeader` (default) | `Authorization: privateKey <apiKey>` | Server-side authentication via header |
-| `publicHeader` | `Authorization: publicKey <apiKey>` | Browser/CORS authentication via header |
-| `privateQuery` | Query parameter `T=<apiKey>` | Server-side via query (not recommended for web) |
-| `publicQuery` | Query parameter `P=<apiKey>` | Browser/CORS via query parameter |
+| Mode                      | Method                               | Description                                     |
+|---------------------------|--------------------------------------|-------------------------------------------------|
+| `privateHeader` (default) | `Authorization: privateKey <apiKey>` | Server-side authentication via header           |
+| `publicHeader`            | `Authorization: publicKey <apiKey>`  | Browser/CORS authentication via header          |
+| `privateQuery`            | Query parameter `T=<apiKey>`         | Server-side via query (not recommended for web) |
+| `publicQuery`             | Query parameter `P=<apiKey>`         | Browser/CORS via query parameter                |
 
 Choose the mode that matches your NewsRPM deployment security requirements.
 
@@ -794,14 +800,14 @@ The complete API schema is available in the design folder:
 
 For upload operations, the article object must include:
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `provider` | string | Yes | News provider name |
-| `headline` | string | Yes | Article headline |
-| `slug` | string | Yes | URL slug |
-| `date` | string (ISO) | Yes | Article timestamp |
-| `visibility` | string | Yes | "draft", "embargo", "published", or "retracted" |
-| `quality` | number | Yes | Quality score |
+| Field        | Type         | Required | Description                                     |
+|--------------|--------------|----------|-------------------------------------------------|
+| `provider`   | string       | Yes      | News provider name                              |
+| `headline`   | string       | Yes      | Article headline                                |
+| `slug`       | string       | Yes      | URL slug                                        |
+| `date`       | string (ISO) | Yes      | Article timestamp                               |
+| `visibility` | string       | Yes      | "draft", "embargo", "published", or "retracted" |
+| `quality`    | number       | Yes      | Quality score                                   |
 
 Additional optional fields:
 
@@ -1014,31 +1020,37 @@ const result = await service.uploadArticle(article);
 
 ## Notes and Limitations
 
-- **Field Name Typo**: The NewsRPM API uses "visiblity" (with typo) in some response schemas. The package preserves this field name exactly as defined by the API for compatibility.
+- **Field Name Typo**: The NewsRPM API uses "visiblity" (with typo) in some response schemas. The package preserves this
+  field name exactly as defined by the API for compatibility.
 
-- **Rate Limiting**: The service automatically handles 429 (Too Many Requests) responses with exponential backoff retry logic. Configure retry parameters in the service configuration.
+- **Rate Limiting**: The service automatically handles 429 (Too Many Requests) responses with exponential backoff retry
+  logic. Configure retry parameters in the service configuration.
 
-- **Timeout**: Default request timeout is configured via `requestDefaults.timeoutMs`. Adjust based on your network conditions and API response times.
+- **Timeout**: Default request timeout is configured via `requestDefaults.timeoutMs`. Adjust based on your network
+  conditions and API response times.
 
 - **Authentication Modes**: Choose the appropriate `authMode` for your deployment:
-  - `privateHeader` (default): Server-side authentication via Authorization header (recommended)
-  - `publicHeader`: Browser/CORS authentication via Authorization header
-  - `privateQuery`: Server-side via query parameter (not recommended for web)
-  - `publicQuery`: Browser/CORS via query parameter
+- `privateHeader` (default): Server-side authentication via Authorization header (recommended)
+- `publicHeader`: Browser/CORS authentication via Authorization header
+- `privateQuery`: Server-side via query parameter (not recommended for web)
+- `publicQuery`: Browser/CORS via query parameter
 
 - **Article Upload Requirements**: The upload article schema requires these fields:
-  - `provider`: News provider name
-  - `headline`: Article headline
-  - `slug`: URL slug identifier
-  - `date`: ISO 8601 timestamp
-  - `quality`: Quality score (number)
-  - `visibility`: Article visibility status
+- `provider`: News provider name
+- `headline`: Article headline
+- `slug`: URL slug identifier
+- `date`: ISO 8601 timestamp
+- `quality`: Quality score (number)
+- `visibility`: Article visibility status
 
-- **Plugin Integration**: The package exports the service through the TokenRing plugin system. Tools and chat commands are automatically registered when the plugin is installed.
+- **Plugin Integration**: The package exports the service through the TokenRing plugin system. Tools and chat commands
+  are automatically registered when the plugin is installed.
 
-- **Scripting Functions**: Only 4 of the 8 service methods are exposed as scripting functions. For full API access, use the NewsRPMService directly.
+- **Scripting Functions**: Only 4 of the 8 service methods are exposed as scripting functions. For full API access, use
+  the NewsRPMService directly.
 
-- **Response Types**: All service methods return typed responses defined in the service. Check the `NewsRPMService.ts` file for complete type definitions.
+- **Response Types**: All service methods return typed responses defined in the service. Check the `NewsRPMService.ts`
+  file for complete type definitions.
 
 ## License
 
