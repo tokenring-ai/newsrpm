@@ -29,7 +29,7 @@ export default {
     try {
       parsed = JSON.parse(raw);
     } catch (error: unknown) {
-      throw new Error(`Invalid JSON in file ${jsonPath}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(`Invalid JSON in file ${jsonPath}: ${Error.isError(error) ? error.message : String(error)}`);
     }
     const res = await agent.requireServiceByType(NewsRPMService).uploadArticle(parsed);
     return `Uploaded. id=${res?.id}`;
